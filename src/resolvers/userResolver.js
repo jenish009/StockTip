@@ -36,7 +36,7 @@ const login = async (_, { email, password }) => {
         const isPasswordCorrect = bcrypt.compareSync(password, data.password);
         if (!isPasswordCorrect) throw new Error("Invilid Password")
 
-        return { data, message: "Login Successfully", tatusCode: 200 }
+        return { data, message: "Login Successfully", statusCode: 200 }
     } catch (error) {
         return { error: error.message, statusCode: 400 }
     }
