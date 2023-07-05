@@ -7,7 +7,9 @@ const resolvers = require('./src/resolvers/index')
 connectDatabase()
 const server = new ApolloServer({
     typeDefs,
-    resolvers
+    resolvers,
+    listen: { port: 8080 }
+
 });
 
 server.listen().then(({ url }) => {

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId
 
 // Define the User schema
 const userSchema = new mongoose.Schema({
@@ -14,6 +15,9 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
+    },
+    roleId: {
+        type: ObjectId,
     },
 });
 
