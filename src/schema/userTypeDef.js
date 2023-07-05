@@ -5,13 +5,14 @@ const userTypeDefs = gql`
   scalar JSONObject
 
 type response {
-  body : [JSONObject],
+  data : JSONObject,
   error : String,
   statusCode : Int!
 }
   type Query {
     login ( email:String!, password:String! ) : response
-  }
+    signup (email:String!, password:String!, name: String! ) : response
+  } 
 `;
 
 module.exports = { userTypeDefs };
