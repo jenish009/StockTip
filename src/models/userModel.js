@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     roleId: {
         type: ObjectId,
     },
-});
+}, { timestamps: true, versionKey: false });
 
 // Create the User model
 const UserModel = mongoose.model('User', userSchema);

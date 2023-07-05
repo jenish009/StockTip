@@ -6,7 +6,7 @@ const roleSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-});
+}, { timestamps: true, versionKey: false });
 
 // Create the role model
 const roleModel = mongoose.model('role', roleSchema);
