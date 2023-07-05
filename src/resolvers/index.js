@@ -3,6 +3,8 @@ const tipFeedResolver = require('./tipFeedResolver')
 
 
 module.exports = {
-    ...userResolver,
-    ...tipFeedResolver
+    Query: {
+        ...userResolver.Query,
+        ...tipFeedResolver.Query
+    }
 }

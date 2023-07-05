@@ -38,9 +38,7 @@ const getTipFeed = async (_, { typeFilter }) => {
 module.exports = {
     Query:
     {
+        createTipFeed,
         getTipFeed
     },
-    Mutation: {
-        createTipFeed
-    }
 }
