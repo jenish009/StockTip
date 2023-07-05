@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 
 
+
 const tipFeedTypeDef = gql`
   scalar JSONObject
 
