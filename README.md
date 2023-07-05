@@ -1,2 +1,1 @@
-# StockTip
-StockTip
+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

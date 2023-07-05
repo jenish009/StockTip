@@ -1,0 +1,18 @@
+{
+  "name": "stocktip",
+  "version": "1.0.0",
+  "description": "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",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^3.12.0",
+    "graphql": "^16.7.1",
+    "mongoose": "^7.3.1",
+    "nodemon": "^2.0.22"
+  }
+}
