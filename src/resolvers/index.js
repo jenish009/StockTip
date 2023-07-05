@@ -6,5 +6,9 @@ module.exports = {
     Query: {
         ...userResolver.Query,
         ...tipFeedResolver.Query
+    },
+    Mutation: {
+        ...userResolver.Mutation,
+        ...tipFeedResolver.Mutation,
     }
 }

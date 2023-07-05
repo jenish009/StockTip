@@ -81,8 +81,10 @@ const getUserById = async (_, { id }) => {
 module.exports = {
     Query:
     {
-        login,
-        signup,
         getUserById
     },
+    Mutation: {
+        login,
+        signup,
+    }
 }

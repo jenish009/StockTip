@@ -13,8 +13,8 @@ type response {
   error : String,
   statusCode : Int!
 }
-  ${userTypeDefs}
-  ${tipFeedTypeDef}
+${tipFeedTypeDef}
+${userTypeDefs}
 `;
 
 ;
