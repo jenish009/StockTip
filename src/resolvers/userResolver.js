@@ -5,18 +5,20 @@ const salt = bcrypt.genSaltSync(saltRounds);
 const { ObjectId } = require("mongoose").Types;
 
 
-const signup = async (_, { email, password, name }) => {
+const signup = async (_, { email, password, name, phoneNo }) => {
     try {
         if (!email) throw new Error("Please Enter Email Id")
         if (!password) throw new Error("Please Enter Password")
         if (password.length < 8) throw new Error("Passwords Must Contain 8 Characters")
         if (!name) throw new Error("Please Enter Name")
+        if (!phoneNo || phoneNo.length < 10) throw new Error("Please Enter Valid Phone Number")
 
-        let userExist = await userModel.findOne({ email })
-        if (userExist) throw new Error("Email Id Is Already Registered")
+        let userExist = await userModel.findOne({ $or: [{ email }, { phoneNo }] });
+
+        if (userExist) throw new Error("Email Or Phone Number Already Registered")
         const hashedPassword = bcrypt.hashSync(password, salt);
 
-        let data = await userModel.create({ email, password: hashedPassword, name })
+        let data = await userModel.create({ email, password: hashedPassword, name, phoneNo })
 
 
         return { data, message: "Sign Up successfully", statusCode: 200 }
@@ -25,12 +27,12 @@ const signup = async (_, { email, password, name }) => {
     }
 };
 
-const login = async (_, { email, password }) => {
+const login = async (_, { phoneNo, password }) => {
     try {
-        if (!email) throw new Error("Please Enter Valid Email")
+        if (!phoneNo) throw new Error("Please Enter Valid Email")
         if (!password) throw new Error("Please Enter Password")
 
-        let data = await userModel.findOne({ email })
+        let data = await userModel.findOne({ phoneNo })
         if (!data) throw new Error("User Not Found")
 
         const isPasswordCorrect = bcrypt.compareSync(password, data.password);

@@ -19,6 +19,8 @@ type response {
 }
 
 scalar JSONObject
+scalar BigInt
+
 
 ${tipFeedTypeDef}
 ${userTypeDefs}
