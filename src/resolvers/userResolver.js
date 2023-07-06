@@ -61,15 +61,45 @@ const getUserById = async (_, { id }) => {
                 },
             },
             {
-                $project: {
-                    "_id": 0,
-                    "email": 1,
-                    "name": 1,
-                    "role": {
-                        "$arrayElemAt": ["$role", 0],
-                    },
-                },
+                $lookup: {
+                    from: "usersubscriptionplans",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$userId", "$$userId"] },
+                                        { $lte: ["$startDate", new Date()] },
+                                        { $gte: ["$expireDate", new Date()] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "usersubscriptionplans"
+                }
             },
+            {
+                $lookup: {
+                    from: "subscriptionplans",
+                    localField: "usersubscriptionplans.subscriptionPlanId",
+                    foreignField: "_id",
+                    as: "subscriptionPlan"
+                }
+            },
+
+            {
+                $project: {
+                    _id: 1,
+                    email: 1,
+                    name: 1,
+                    role: { $arrayElemAt: ["$role.name", 0] },
+                    expireDate: { $arrayElemAt: ["$usersubscriptionplans.expireDate", 0] },
+                    subscriptionPlanId: { $arrayElemAt: ["$usersubscriptionplans.subscriptionPlanId", 0] },
+                    subscriptionPlanName: { $arrayElemAt: ["$subscriptionPlan.name", 0] }
+                }
+            }
         ]);
 
         return { data, statusCode: 200 }

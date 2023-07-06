@@ -1,6 +1,10 @@
 const { gql } = require('apollo-server');
 const { userTypeDefs } = require('./userTypeDef');
 const { tipFeedTypeDef } = require('./tipFeedTypeDef');
+const { subscriptionPlanTypeDef } = require('./subscriptionPlanTypeDef');
+const { userSubscriptionPlanTypeDef } = require('./userSubscriptionPlanTypeDef');
+
+
 
 
 
@@ -13,8 +17,11 @@ type response {
   error : String,
   statusCode : Int!
 }
+
+scalar JSONObject
+
 ${tipFeedTypeDef}
 ${userTypeDefs}
+${subscriptionPlanTypeDef}
+${userSubscriptionPlanTypeDef}
 `;
-
-;

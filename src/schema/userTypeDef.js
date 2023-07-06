@@ -2,8 +2,6 @@ const { gql } = require('apollo-server');
 
 
 const userTypeDefs = gql`
-  scalar JSONObject
-
   type Query {
     getUserById (id : ID!) : response
   }
