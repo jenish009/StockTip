@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId
 
 // Define the User schema
 const tipFeedSchema = new mongoose.Schema({
@@ -25,6 +26,10 @@ const tipFeedSchema = new mongoose.Schema({
     },
     type: {
         type: String
+    },
+    subscriptionId: {
+        type: [ObjectId],
+        default: null
     }
 }, { timestamps: true, versionKey: false });
 
