@@ -1,12 +1,15 @@
 const mongoose = require('mongoose');
 
 // Define the User schema
-const roleSchema = new mongoose.Schema({
+const roleSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-}, { timestamps: true, versionKey: false });
+  },
+  { timestamps: true, versionKey: false },
+);
 
 // Create the role model
 const roleModel = mongoose.model('role', roleSchema);

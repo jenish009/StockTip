@@ -1,23 +1,29 @@
 const mongoose = require('mongoose');
 
 // Define the User schema
-const subscriptionPlanSchema = new mongoose.Schema({
+const subscriptionPlanSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     discription: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     amount: {
-        type: Number
+      type: Number,
     },
     days: {
-        type: Number
+      type: Number,
     },
-}, { timestamps: true, versionKey: false });
+  },
+  { timestamps: true, versionKey: false },
+);
 
-const subscriptionPlanModel = mongoose.model('subscriptionPlan', subscriptionPlanSchema);
+const subscriptionPlanModel = mongoose.model(
+  'subscriptionPlan',
+  subscriptionPlanSchema,
+);
 
 module.exports = subscriptionPlanModel;

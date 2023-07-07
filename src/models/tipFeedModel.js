@@ -1,37 +1,40 @@
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId
+const ObjectId = mongoose.Types.ObjectId;
 
 // Define the User schema
-const tipFeedSchema = new mongoose.Schema({
+const tipFeedSchema = new mongoose.Schema(
+  {
     symbol: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     currentValue: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     targets: {
-        type: Array
+      type: Array,
     },
     stopLoss: {
-        type: String
+      type: String,
     },
     direction: {
-        type: String
+      type: String,
     },
     date: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
     type: {
-        type: String
+      type: String,
     },
     subscriptionId: {
-        type: [ObjectId],
-        default: null
-    }
-}, { timestamps: true, versionKey: false });
+      type: [ObjectId],
+      default: null,
+    },
+  },
+  { timestamps: true, versionKey: false },
+);
 
 const tipFeedModel = mongoose.model('tipFeed', tipFeedSchema);
 

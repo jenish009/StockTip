@@ -1,15 +1,22 @@
-const { gql } = require('apollo-server');
-
-
+const { gql } = require('apollo-server-express');
 
 const userTypeDefs = gql`
   type Query {
-    getUserById (id : ID!) : response
+    getUserById(id: ID!): response
   }
-   
+
   type Mutation {
-    login ( phoneNo:BigInt!, password:String! ) : response
-    signup (email:String!, password:String!, name: String! , phoneNo :BigInt! ) : response
+    login(phoneNo: BigInt!, password: String!): response
+    signup(
+      email: String!
+      password: String!
+      name: String!
+      phoneNo: BigInt!
+    ): response
+  }
+
+  type Subscription {
+    onLogin: response
   }
 `;
 
