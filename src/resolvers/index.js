@@ -17,5 +17,6 @@ module.exports = {
   },
   Subscription: {
     ...userResolver.Subscription,
+    ...tipFeedResolver.Subscription
   },
 };

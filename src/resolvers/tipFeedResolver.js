@@ -1,5 +1,7 @@
 const { tipFeedModel, userModel } = require('../models/index');
 const { ObjectId } = require('mongoose').Types;
+const { PubSub } = require('graphql-subscriptions');
+const pubsub = new PubSub();
 
 const createTipFeed = async (
   _,
@@ -31,7 +33,9 @@ const createTipFeed = async (
     });
 
     if (!createTipFeed) throw new Error('Something Went Wrong');
-
+    pubsub.publish('TIP_ADD', {
+      onTipAdd: { data: createTipFeed, statusCode: 200 },
+    });
     return { message: 'Tip Added', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
@@ -120,6 +124,10 @@ const getTipFeed = async (_, { typeFilter, userId }) => {
   }
 };
 
+
+const onTipAdd = {
+  subscribe: () => pubsub.asyncIterator(['TIP_ADD']),
+};
 module.exports = {
   Query: {
     getTipFeed,
@@ -127,4 +135,7 @@ module.exports = {
   Mutation: {
     createTipFeed,
   },
+  Subscription: {
+    onTipAdd
+  }
 };

@@ -17,6 +17,9 @@ const tipFeedTypeDef = gql`
       subscriptionId: [String]
     ): response
   }
+  type Subscription {
+    onTipAdd: response
+  }
 `;
 
 module.exports = { tipFeedTypeDef };
