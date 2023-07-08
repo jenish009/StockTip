@@ -8,7 +8,8 @@ const subscriptionPlanTypeDef = gql`
     createsubscriptionPlan(
       name: String!
       discription: String
-      amount: Int
+      monthlyPrice: Int
+      yearlyPrice : Int
       days: Int
     ): response
   }

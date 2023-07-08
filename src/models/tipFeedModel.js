@@ -21,9 +21,23 @@ const tipFeedSchema = new mongoose.Schema(
     direction: {
       type: String,
     },
-    date: {
+    trading_date: {
       type: Date,
       required: true,
+    },
+    next_trading_date: {
+      type: Date,
+      required: true,
+    },
+    position: {
+      type: String,
+    },
+    entry_price: {
+      type: String,
+
+    },
+    entry_date: {
+      type: Date,
     },
     type: {
       type: String,
@@ -32,6 +46,18 @@ const tipFeedSchema = new mongoose.Schema(
       type: [ObjectId],
       default: null,
     },
+    isEntryMissed: {
+      type: Boolean,
+    },
+    entryMissedInstruction: {
+      type: String,
+    },
+    isStopLossMissed: {
+      type: Boolean,
+    },
+    stopLossMissedInstruction: {
+      type: String,
+    }
   },
   { timestamps: true, versionKey: false },
 );

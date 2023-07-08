@@ -1,16 +1,17 @@
 const { subscriptionPlanModel } = require('../models/index');
 const createsubscriptionPlan = async (
   _,
-  { name, discription, amount, days },
+  { name, discription, monthlyPrice, yearlyPrice, days },
 ) => {
   try {
     if (!name) throw new Error('Please Enter Name Of subscription');
-    if (!amount) throw new Error('Please Enter Amount Of subscription');
+    if (!monthlyPrice) throw new Error('Please Enter Amount Of subscription');
 
     let createsubscription = await subscriptionPlanModel.create({
       name,
       discription,
-      amount,
+      monthlyPrice,
+      yearlyPrice,
       days,
     });
 

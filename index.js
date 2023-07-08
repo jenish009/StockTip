@@ -7,6 +7,7 @@ const { connectDatabase } = require('./utils/connection')
 const { ApolloServer } = require('apollo-server-express');
 const typeDefs = require('./src/schema/index');
 const resolvers = require('./src/resolvers/index');
+require('dotenv').config();
 
 (async function () {
     const app = express();
@@ -38,7 +39,7 @@ const resolvers = require('./src/resolvers/index');
 
     await connectDatabase()
 
-    const PORT = 4000;
+    const PORT = process.env.PORT;
     httpServer.listen(PORT, () => {
         console.log(`Server is now running on http://localhost:${PORT}/graphql`);
     });

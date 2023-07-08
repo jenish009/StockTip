@@ -11,7 +11,10 @@ const subscriptionPlanSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    amount: {
+    monthlyPrice: {
+      type: Number,
+    },
+    yearlyPrice: {
       type: Number,
     },
     days: {

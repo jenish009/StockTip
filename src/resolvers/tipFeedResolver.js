@@ -7,13 +7,21 @@ const createTipFeed = async (
   _,
   {
     symbol,
+    currentValue,
     targets,
     stopLoss,
     direction,
-    date,
-    currentValue,
+    trading_date,
+    next_trading_date,
+    position,
+    entry_price,
+    entry_date,
     type,
     subscriptionId,
+    isEntryMissed,
+    entryMissedInstruction,
+    isStopLossMissed,
+    stopLossMissedInstruction
   },
 ) => {
   try {
@@ -23,13 +31,21 @@ const createTipFeed = async (
 
     let createTipFeed = await tipFeedModel.create({
       symbol,
+      currentValue,
       targets,
       stopLoss,
       direction,
-      date,
-      currentValue,
+      trading_date,
+      next_trading_date,
+      position,
+      entry_price,
+      entry_date,
       type,
       subscriptionId,
+      isEntryMissed,
+      entryMissedInstruction,
+      isStopLossMissed,
+      stopLossMissedInstruction
     });
 
     if (!createTipFeed) throw new Error('Something Went Wrong');
@@ -113,7 +129,6 @@ const getTipFeed = async (_, { typeFilter, userId }) => {
     console.log('filter>', filter);
     let TipFeedData = await tipFeedModel
       .find(filter)
-      .select('symbol currentValue targets stopLoss direction date type')
       .sort({ _id: -1 });
 
     if (!TipFeedData) throw new Error('Tip Not Found');
