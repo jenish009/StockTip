@@ -39,7 +39,7 @@ const login = async (_, { phoneNo, password }) => {
     if (!phoneNo) throw new Error('Please Enter Valid Email');
     if (!password) throw new Error('Please Enter Password');
 
-    let data = await userModel.findOne({ phoneNo });
+    let data = await userModel.findOne({ phoneNo }).lean();
 
     if (!data) throw new Error('User Not Found');
 
