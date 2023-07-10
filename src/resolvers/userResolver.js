@@ -49,7 +49,7 @@ const login = async (_, { phoneNo, password }) => {
       onLogin: { data, message: 'Login Successfully', statusCode: 200 },
     });
 
-    return { data: { ...data, applink: process.env.APPLICATION_LINK }, message: 'Login Successfully', , statusCode: 200 };
+    return { data: { ...data, applink: process.env.APPLICATION_LINK }, message: 'Login Successfully', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
