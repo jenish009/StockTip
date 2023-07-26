@@ -16,7 +16,7 @@ const signup = async (_, { email, name }) => {
     let data;
 
     let userExist = await userModel.findOne({ email });
-    if (userExist.isVerified == true) throw new Error('Email Already Registered');
+    if (userExist && userExist.isVerified == true) throw new Error('Email Already Registered');
 
     if (!userExist) {
       data = await userModel.create({
