@@ -11,12 +11,10 @@ const userSchema = new mongoose.Schema(
     },
     phoneNo: {
       type: Number,
-      required: true,
       unique: true,
     },
     password: {
       type: String,
-      required: true,
     },
     name: {
       type: String,
@@ -25,6 +23,10 @@ const userSchema = new mongoose.Schema(
     roleId: {
       type: ObjectId,
     },
+    isVerified: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true, versionKey: false },
 );

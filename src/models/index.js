@@ -3,6 +3,8 @@ const roleModel = require('./roleModel');
 const tipFeedModel = require('./tipFeedModel');
 const subscriptionPlanModel = require('./subscriptionPlanModel');
 const userSubscriptionPlanModel = require('./userSubscriptionPlanModel');
+const otpModel = require('./otpModel');
+
 
 module.exports = {
   userModel,
@@ -10,4 +12,5 @@ module.exports = {
   tipFeedModel,
   subscriptionPlanModel,
   userSubscriptionPlanModel,
+  otpModel
 };

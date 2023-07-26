@@ -9,9 +9,7 @@ const userTypeDefs = gql`
     login(phoneNo: BigInt!, password: String!): response
     signup(
       email: String!
-      password: String!
       name: String!
-      phoneNo: BigInt!
     ): response
   }
 

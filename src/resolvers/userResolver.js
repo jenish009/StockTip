@@ -1,34 +1,42 @@
-const { userModel } = require('../models/index');
+const { userModel, otpModel } = require('../models/index');
 const { PubSub } = require('graphql-subscriptions');
 const pubsub = new PubSub();
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const salt = bcrypt.genSaltSync(saltRounds);
 const { ObjectId } = require('mongoose').Types;
+const { sendEmail } = require('../../utils/sendEmail')
+const fs = require("fs");
+const { otpGenerate } = require('../../utils/common')
 
-const signup = async (_, { email, password, name, phoneNo }) => {
+
+
+const signup = async (_, { email, name }) => {
   try {
     if (!email) throw new Error('Please Enter Email Id');
-    if (!password) throw new Error('Please Enter Password');
-    if (password.length < 8)
-      throw new Error('Passwords Must Contain 8 Characters');
     if (!name) throw new Error('Please Enter Name');
-    if (!phoneNo || phoneNo.length < 10)
-      throw new Error('Please Enter Valid Phone Number');
+    let data;
 
-    let userExist = await userModel.findOne({ $or: [{ email }, { phoneNo }] });
+    let userExist = await userModel.findOne({ email });
+    if (userExist.isVerified == true) throw new Error('Email Already Registered');
 
-    if (userExist) throw new Error('Email Or Phone Number Already Registered');
-    const hashedPassword = bcrypt.hashSync(password, salt);
+    if (!userExist) {
+      data = await userModel.create({
+        email,
+        name,
+      });
+    }
+    let otp = otpGenerate()
 
-    let data = await userModel.create({
-      email,
-      password: hashedPassword,
-      name,
-      phoneNo,
-    });
+    await otpModel.findOneAndUpdate({ email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true })
 
-    return { data, message: 'Sign Up successfully', statusCode: 200 };
+    let emailTemplate = fs
+      .readFileSync("utils/emailTemplate.html", "utf8")
+      .toString();
+    emailTemplate = emailTemplate.replace(/\|USERNAME\|/g, name)
+    emailTemplate = emailTemplate.replace(/\|OTP\|/g, otp)
+
+    let emailSent = await sendEmail(email, emailTemplate)
+
+    return { data, message: 'OTP Has Been Sent To Your Email ', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
