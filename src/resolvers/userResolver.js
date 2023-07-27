@@ -7,7 +7,8 @@ const { sendEmail } = require('../../utils/sendEmail')
 const fs = require("fs");
 const { otpGenerate } = require('../../utils/common')
 
-
+const saltRounds = 10;
+const salt = bcrypt.genSaltSync(saltRounds);
 
 const signup = async (_, { email, name }) => {
   try {
@@ -41,6 +42,57 @@ const signup = async (_, { email, name }) => {
     return { error: error.message, statusCode: 400 };
   }
 };
+
+const verifyOtp = async (_, { otp, email }) => {
+  try {
+    if (!otp) throw new Error('Please Enter Valid OTP')
+    if (!email) throw new Error('Email Not Found')
+
+    let otpVerified = await otpModel.findOne({ email, otp })
+    if (!otpVerified) throw new Error("Invalid OTP")
+
+    let verifyUser = await userModel.findOneAndUpdate({ email }, { isVerified: true }, { new: true })
+
+    return { data: { verify: true, ...verifyUser }, statusCode: 200 };
+
+  } catch (error) {
+    return { data: { verify: false }, error: error.message, statusCode: 400 };
+  }
+}
+
+const updateProfile = async (_, { id, phoneNo, password }) => {
+  try {
+    if (!id) throw new Error("User Not Found")
+    if (!phoneNo) throw new Error("Please Enter Valid Phone Number")
+    if (!password) throw new Error("User Not Found")
+    if (password.length < 8)
+      throw new Error('Passwords Must Contain 8 Characters');
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    let profileUpdated = await userModel.findOneAndUpdate({ _id: id }, { phoneNo, password: hashedPassword }, { new: true }
+    )
+    return { data: profileUpdated, statusCode: 200, };
+
+  } catch (error) {
+  }
+}
+
+const forgotPassword = async (_, { id, phoneNo, password }) => {
+  try {
+    if (!id) throw new Error("User Not Found")
+    if (!phoneNo) throw new Error("Please Enter Valid Phone Number")
+    if (!password) throw new Error("User Not Found")
+    if (password.length < 8)
+      throw new Error('Passwords Must Contain 8 Characters');
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    let profileUpdated = await userModel.findOneAndUpdate({ _id: id }, { phoneNo, password: hashedPassword }, { new: true }
+    )
+    return { data: profileUpdated, statusCode: 200, };
+
+  } catch (error) {
+  }
+}
 
 const login = async (_, { phoneNo, password }) => {
   try {
@@ -144,6 +196,8 @@ module.exports = {
   Mutation: {
     login,
     signup,
+    verifyOtp,
+    updateProfile
   },
   Subscription: {
     onLogin,
