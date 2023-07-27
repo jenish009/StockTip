@@ -3,22 +3,20 @@ const nodemailer = require("nodemailer");
 
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAI_PORT,
     auth: {
-        user: 'kavathiyajenish008@gmail.com',
-        pass: 'csujwhuvciswpfxz',
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
     },
 });
 
-// Function to send the email
-async function sendEmail(toEmail, body) {
+async function sendEmail(toEmail, body, subject) {
     try {
-        // Set up email data
         const mailOptions = {
-            from: 'tip@gmail.com',
+            from: '<stoketip@gmail.com>',
             to: toEmail,
-            subject: "Test Email", // Email subject
+            subject: subject,
             html: body
         };
 
@@ -26,6 +24,7 @@ async function sendEmail(toEmail, body) {
         console.log("Email sent: " + info.response);
     } catch (error) {
         console.error("Error sending email:", error);
+        throw new Error(error.message)
     }
 }
 

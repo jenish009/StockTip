@@ -35,7 +35,7 @@ const signup = async (_, { email, name }) => {
     emailTemplate = emailTemplate.replace(/\|USERNAME\|/g, name)
     emailTemplate = emailTemplate.replace(/\|OTP\|/g, otp)
 
-    let emailSent = await sendEmail(email, emailTemplate)
+    let emailSent = await sendEmail(email, emailTemplate, 'OTP to login')
 
     return { data, message: 'OTP Has Been Sent To Your Email ', statusCode: 200 };
   } catch (error) {
