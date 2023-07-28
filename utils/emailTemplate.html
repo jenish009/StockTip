@@ -1,30 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One-Time Password (OTP)</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f1f1f1;">
+    <style>
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f1f1f1;
+        }
 
-    <div style="background-color: #2a9df4; padding: 20px; text-align: center;">
-        <h1 style="color: #fff; margin: 0;">Stock Tip</h1>
+        .header {
+            background-color: #2a9df4;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #fff;
+            margin: 0;
+        }
+
+        .otp-container {
+            padding: 20px;
+        }
+
+        .otp-message {
+            font-size: 18px;
+        }
+
+        .otp-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .otp-validity {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .otp-instruction {
+            font-size: 18px;
+        }
+
+        .footer {
+            background-color: #2a9df4;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+            .otp-box {
+                font-size: 28px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>STOCK TIP</h1>
     </div>
 
-    <div style="padding: 20px;">
-        <p style="font-size: 16px;">Dear |USERNAME|,</p>
-        <p style="font-size: 16px;">Your One-Time Password (OTP) is:</p>
-        <div style="background-color: #f9f9f9; border: 1px solid #ddd; padding: 10px; font-size: 24px; font-weight: bold; text-align: center;">
+    <div class="otp-container">
+        <p class="otp-message">Dear |USERNAME|,</p>
+        <p class="otp-message">Your One-Time Password (OTP) is valid for 60 seconds:</p>
+        <div class="otp-box">
             <!-- Place your generated OTP here -->
             |OTP|
         </div>
-        <p style="font-size: 16px;">Please use this OTP to proceed with your login or verification process.</p>
-        <p style="font-size: 16px;">If you didn't request this OTP, please ignore this email.</p>
+        <p class="otp-validity">(Valid for 100 seconds)</p>
+        <p class="otp-instruction">Please use this OTP to proceed with your login or verification process.</p>
+        <p class="otp-instruction">If you didn't request this OTP, please ignore this email.</p>
     </div>
 
-    <div style="background-color: #2a9df4; padding: 20px; text-align: center;">
-        <p style="font-size: 14px; color: #fff; margin: 0;">This is an automated email. Please do not reply.</p>
+    <div class="footer">
+        <p>This is an automated email. Please do not reply.</p>
     </div>
 
 </body>
+
 </html>
