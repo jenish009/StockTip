@@ -24,6 +24,8 @@ const signup = async (_, { email, name }) => {
         email,
         name,
       });
+    } else {
+      data = userExist
     }
     let otp = otpGenerate()
 
