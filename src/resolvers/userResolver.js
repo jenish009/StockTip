@@ -170,6 +170,8 @@ const getUserById = async (_, { id }) => {
           _id: 1,
           email: 1,
           name: 1,
+          password: 1,
+          phoneNo: 1,
           role: { $arrayElemAt: ['$role.name', 0] },
           expireDate: {
             $arrayElemAt: ['$usersubscriptionplans.expireDate', 0],
