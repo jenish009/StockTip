@@ -54,8 +54,9 @@ const verifyOtp = async (_, { otp, email }) => {
     if (!otpVerified) throw new Error("Invalid OTP")
 
     let verifyUser = await userModel.findOne({ email })
+    const userData = verifyUser.toObject();
 
-    return { data: { verify: true, ...verifyUser }, statusCode: 200 };
+    return { data: { verify: true, ...userData }, statusCode: 200 };
 
   } catch (error) {
     return { data: { verify: false }, error: error.message, statusCode: 400 };
