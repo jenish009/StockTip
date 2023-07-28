@@ -53,7 +53,7 @@ const verifyOtp = async (_, { otp, email }) => {
     let otpVerified = await otpModel.findOne({ email, otp })
     if (!otpVerified) throw new Error("Invalid OTP")
 
-    let verifyUser = await userModel.findOneAndUpdate({ email }, { isVerified: true }, { new: true })
+    let verifyUser = await userModel.findOne({ email })
 
     return { data: { verify: true, ...verifyUser }, statusCode: 200 };
 
@@ -71,7 +71,7 @@ const updateProfile = async (_, { id, phoneNo, password }) => {
       throw new Error('Passwords Must Contain 8 Characters');
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    let profileUpdated = await userModel.findOneAndUpdate({ _id: id }, { phoneNo, password: hashedPassword }, { new: true }
+    let profileUpdated = await userModel.findOneAndUpdate({ _id: id }, { phoneNo, password: hashedPassword, isVerified: true }, { new: true }
     )
     return { data: profileUpdated, statusCode: 200, };
 
