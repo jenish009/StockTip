@@ -32,7 +32,7 @@ const signup = async (_, { email, name }) => {
     await otpModel.findOneAndUpdate({ email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true })
 
     let emailTemplate = fs
-      .readFileSync("utils/emailTemplate.html", "utf8")
+      .readFileSync("utils/emailTemplates/emailTemplate.html", "utf8")
       .toString();
     emailTemplate = emailTemplate.replace(/\|USERNAME\|/g, name)
     emailTemplate = emailTemplate.replace(/\|OTP\|/g, otp)
@@ -67,7 +67,7 @@ const updateProfile = async (_, { id, phoneNo, password }) => {
   try {
     if (!id) throw new Error("User Not Found")
     if (!phoneNo) throw new Error("Please Enter Valid Phone Number")
-    if (!password) throw new Error("User Not Found")
+    if (!password) throw new Error("Please Enter Password")
     if (password.length < 8)
       throw new Error('Passwords Must Contain 8 Characters');
     const hashedPassword = bcrypt.hashSync(password, salt);
@@ -80,22 +80,48 @@ const updateProfile = async (_, { id, phoneNo, password }) => {
   }
 }
 
-const forgotPassword = async (_, { id, phoneNo, password }) => {
+const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
   try {
-    if (!id) throw new Error("User Not Found")
-    if (!phoneNo) throw new Error("Please Enter Valid Phone Number")
-    if (!password) throw new Error("User Not Found")
-    if (password.length < 8)
-      throw new Error('Passwords Must Contain 8 Characters');
-    const hashedPassword = bcrypt.hashSync(password, salt);
+    if (!phoneOrEmail) throw new Error("Please Enter Email Or Password")
 
-    let profileUpdated = await userModel.findOneAndUpdate({ _id: id }, { phoneNo, password: hashedPassword }, { new: true }
-    )
-    return { data: profileUpdated, statusCode: 200, };
+    let filter = /^[0-9]+$/.test(phoneOrEmail) ? { phoneNo: phoneOrEmail } : { email: phoneOrEmail }
+
+    let userData = await userModel.findOne({ ...filter, isVerified: true })
+    if (!userData) throw new Error("User Not Found")
+
+    let otp = otpGenerate()
+
+    await otpModel.findOneAndUpdate({ email: userData.email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true })
+
+    let emailTemplate = fs
+      .readFileSync("utils/emailTemplates/forgotPasswordTemplate.html", "utf8")
+      .toString();
+    emailTemplate = emailTemplate.replace(/\|USERNAME\|/g, userData.name)
+    emailTemplate = emailTemplate.replace(/\|OTP\|/g, otp)
+
+    let emailSent = await sendEmail(userData.email, emailTemplate, 'Password Reset OTP - Valid for 2 Minutes')
+
+    return { data: userData, message: 'The OTP has been sent to the registered email address', statusCode: 200, };
 
   } catch (error) {
+    return { error: error.message, statusCode: 400 };
   }
 }
+const forgotPassword = async (_, { email, password }) => {
+  try {
+    if (!email) throw new Error('Please Enter Valid Email');
+    if (!password) throw new Error("Please Enter Password")
+    if (password.length < 8)
+      throw new Error('Passwords Must Contain 8 Characters');
+
+    const hashedPassword = bcrypt.hashSync(password, salt);
+
+    let profileUpdated = await userModel.findOneAndUpdate({ email }, { password: hashedPassword }, { new: true })
+    return { data: profileUpdated, message: "The password has been successfully updated", statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
 
 const login = async (_, { phoneNo, password }) => {
   try {
@@ -197,12 +223,14 @@ const onLogin = {
 module.exports = {
   Query: {
     getUserById,
+    forgotPasswordSendOtp
   },
   Mutation: {
     login,
     signup,
     verifyOtp,
-    updateProfile
+    updateProfile,
+    forgotPassword
   },
   Subscription: {
     onLogin,
