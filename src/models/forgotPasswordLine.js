@@ -7,7 +7,7 @@ const forgotPasswordLinkSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        link: {
+        otp: {
             type: String,
             required: true,
         },
@@ -22,4 +22,4 @@ const forgotPasswordLinkSchema = new mongoose.Schema(
 
 const forgotPasswordLinkModel = mongoose.model('forgotPasswordLink', forgotPasswordLinkSchema);
 
-module.exports = otpModel;
+module.exports = forgotPasswordLinkModel;

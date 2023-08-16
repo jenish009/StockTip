@@ -24,6 +24,10 @@ const tipFeedTypeDef = gql`
       entryMissedInstruction : String
       isStopLossMissed : Boolean
       stopLossMissedInstruction : String   
+      isFutureOrEnquity : Boolean
+      currentDate : String
+      quantity : Int
+      note : String
     ): response
   }
   type Subscription {

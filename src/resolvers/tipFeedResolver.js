@@ -21,15 +21,15 @@ const createTipFeed = async (
     isEntryMissed,
     entryMissedInstruction,
     isStopLossMissed,
-    stopLossMissedInstruction
+    stopLossMissedInstruction,
+    isFutureOrEnquity,
+    currentDate,
+    quantity,
+    note
   },
 ) => {
   try {
-    if (!symbol) throw new Error('Please Enter Symbol');
-    if (!currentValue) throw new Error('Please Enter Current Value of Symbol');
-    if (!date) throw new Error('Please Enter Valid Date');
-
-    let createTipFeed = await tipFeedModel.create({
+    let body = {
       symbol,
       currentValue,
       targets,
@@ -45,8 +45,17 @@ const createTipFeed = async (
       isEntryMissed,
       entryMissedInstruction,
       isStopLossMissed,
-      stopLossMissedInstruction
-    });
+      stopLossMissedInstruction,
+      isFutureOrEnquity,
+      currentDate,
+      quantity,
+      note
+    }
+    if (!symbol) throw new Error('Please Enter Symbol');
+    if (!currentValue) throw new Error('Please Enter Current Value of Symbol');
+    if (!date) throw new Error('Please Enter Valid Date');
+
+    let createTipFeed = await tipFeedModel.create(body);
 
     if (!createTipFeed) throw new Error('Something Went Wrong');
     pubsub.publish('TIP_ADD', {

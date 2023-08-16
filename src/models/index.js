@@ -4,6 +4,8 @@ const tipFeedModel = require('./tipFeedModel');
 const subscriptionPlanModel = require('./subscriptionPlanModel');
 const userSubscriptionPlanModel = require('./userSubscriptionPlanModel');
 const otpModel = require('./otpModel');
+const appMetaDataModel = require('./appMetaData');
+
 
 
 module.exports = {
@@ -12,5 +14,6 @@ module.exports = {
   tipFeedModel,
   subscriptionPlanModel,
   userSubscriptionPlanModel,
-  otpModel
+  otpModel,
+  appMetaDataModel
 };

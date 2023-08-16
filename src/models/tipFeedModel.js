@@ -57,6 +57,21 @@ const tipFeedSchema = new mongoose.Schema(
     },
     stopLossMissedInstruction: {
       type: String,
+    },
+    isFutureOrEnquity: {
+      type: Boolean,
+    },
+    currentDate: {
+      type: Date,
+    },
+    quantity: {
+      type: Number
+    },
+    note: {
+      type: String,
+    },
+    moduleId: {
+      type: [ObjectId],
     }
   },
   { timestamps: true, versionKey: false },

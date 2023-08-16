@@ -5,6 +5,8 @@ const { subscriptionPlanTypeDef } = require('./subscriptionPlanTypeDef');
 const {
   userSubscriptionPlanTypeDef,
 } = require('./userSubscriptionPlanTypeDef');
+const { appMeataDataTypeDef } = require('./appMetaDataRtpeDef');
+
 
 // Combine type definitions
 module.exports = gql`
@@ -22,4 +24,5 @@ module.exports = gql`
   ${userTypeDefs}
   ${subscriptionPlanTypeDef}
   ${userSubscriptionPlanTypeDef}
+  ${appMeataDataTypeDef}
 `;
