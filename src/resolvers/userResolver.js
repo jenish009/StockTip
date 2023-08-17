@@ -90,6 +90,9 @@ const updateProfile = async (_, { id, phoneNo, password }) => {
     if (!phoneNo) {
       throw new Error("Please provide a valid phone number.");
     }
+    if (!/^\d{10}$/.test(phoneNo)) {
+      throw new Error("Please provide a valid 10-digit phone number.");
+    }
     if (!password) {
       throw new Error("Please provide a password.");
     }
