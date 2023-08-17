@@ -13,16 +13,16 @@ const salt = bcrypt.genSaltSync(saltRounds);
 const signup = async (_, { email, name }) => {
   try {
     if (!email) {
-      throw new Error('Please Enter Email Id');
+      throw new Error('Please provide a valid email address.');
     }
     if (!name) {
-      throw new Error('Please Enter Name');
+      throw new Error('This email is already registered.');
     }
 
     let userExist = await userModel.findOne({ email });
 
     if (userExist && userExist.isVerified) {
-      throw new Error('Email Already Registered');
+      throw new Error('This email is already registered.');
     }
 
     let data;
@@ -46,7 +46,7 @@ const signup = async (_, { email, name }) => {
 
     const emailSent = await sendEmail(email, emailTemplate, 'OTP to login');
 
-    return { data, message: 'OTP Has Been Sent To Your Email', statusCode: 200 };
+    return { data, message: 'An OTP has been sent to your email address. Please check your inbox.', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
@@ -55,22 +55,22 @@ const signup = async (_, { email, name }) => {
 const verifyOtp = async (_, { otp, email }) => {
   try {
     if (!otp) {
-      throw new Error('Please Enter Valid OTP');
+      throw new Error('Please provide a valid OTP.');
     }
     if (!email) {
-      throw new Error('Email Not Found');
+      throw new Error('Email address not found.');
     }
 
     const otpVerified = await otpModel.findOne({ email, otp });
 
     if (!otpVerified) {
-      throw new Error("Invalid OTP");
+      throw new Error("Invalid OTP. Please check the OTP you've entered.");
     }
 
     const verifyUser = await userModel.findOne({ email });
 
     if (!verifyUser) {
-      throw new Error("User Not Found");
+      throw new Error("User not found. Please sign up before verifying.");
     }
 
     const userData = verifyUser.toObject();
@@ -85,16 +85,16 @@ const verifyOtp = async (_, { otp, email }) => {
 const updateProfile = async (_, { id, phoneNo, password }) => {
   try {
     if (!id) {
-      throw new Error("User Not Found");
+      throw new Error("User not found. Please provide a valid user ID.");
     }
     if (!phoneNo) {
-      throw new Error("Please Enter Valid Phone Number");
+      throw new Error("Please provide a valid phone number.");
     }
     if (!password) {
-      throw new Error("Please Enter Password");
+      throw new Error("Please provide a password.");
     }
     if (password.length < 8) {
-      throw new Error('Passwords Must Contain at Least 8 Characters');
+      throw new Error('Passwords must be at least 8 characters long.');
     }
 
     const hashedPassword = bcrypt.hashSync(password, salt);
@@ -114,7 +114,7 @@ const updateProfile = async (_, { id, phoneNo, password }) => {
 const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
   try {
     if (!phoneOrEmail) {
-      throw new Error("Please Enter Email Or Phone Number");
+      throw new Error("Please provide a valid email or phone number.");
     }
 
     const isPhone = /^[0-9]+$/.test(phoneOrEmail);
@@ -123,7 +123,7 @@ const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
     const userData = await userModel.findOne({ ...filter, isVerified: true });
 
     if (!userData) {
-      throw new Error("User Not Found");
+      throw new Error("User not found or not verified. Please check your information.");
     }
 
     const otp = otpGenerate();
@@ -136,21 +136,22 @@ const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
 
     const emailSent = await sendEmail(userData.email, emailTemplate, 'Password Reset OTP - Valid for 2 Minutes');
 
-    return { data: userData, message: 'The OTP has been sent to the registered email address', statusCode: 200 };
+    return { data: userData, message: 'An OTP has been sent to your registered email address. Please check your inbox.', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
 };
+
 const forgotPassword = async (_, { email, password }) => {
   try {
     if (!email) {
-      throw new Error('Please Enter Valid Email');
+      throw new Error('Please provide a valid email address.');
     }
     if (!password) {
-      throw new Error("Please Enter Password");
+      throw new Error("Please provide a password.");
     }
     if (password.length < 8) {
-      throw new Error('Passwords Must Contain at Least 8 Characters');
+      throw new Error('Passwords must be at least 8 characters long.');
     }
 
     const hashedPassword = bcrypt.hashSync(password, salt);
@@ -161,7 +162,7 @@ const forgotPassword = async (_, { email, password }) => {
       { new: true }
     );
 
-    return { data: profileUpdated, message: "The password has been successfully updated", statusCode: 200 };
+    return { data: profileUpdated, message: "Your password has been successfully updated.", statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
@@ -206,7 +207,7 @@ const login = async (_, { phoneNo, password }) => {
 const getUserById = async (_, { id }) => {
   try {
     if (!id) {
-      throw new Error('User Not Found');
+      throw new Error('Please provide a valid user ID.');
     }
 
     const data = await userModel.aggregate([
@@ -265,6 +266,10 @@ const getUserById = async (_, { id }) => {
         },
       },
     ]);
+
+    if (!data || data.length === 0) {
+      throw new Error('User not found with the provided ID.');
+    }
 
     return { data, statusCode: 200 };
   } catch (error) {
