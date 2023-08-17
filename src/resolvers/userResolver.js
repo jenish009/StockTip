@@ -170,26 +170,26 @@ const forgotPassword = async (_, { email, password }) => {
 const login = async (_, { phoneNo, password }) => {
   try {
     if (!phoneNo) {
-      throw new Error('Please Enter Valid Phone Number');
+      throw new Error('Please provide a valid phone number.');
     }
     if (!password) {
-      throw new Error('Please Enter Password');
+      throw new Error('Please enter your password.');
     }
 
     const data = await userModel.findOne({ phoneNo }).lean();
 
     if (!data) {
-      throw new Error('User Not Found');
+      throw new Error('User not found. Please check your phone number or sign up.');
     }
 
     const isPasswordCorrect = bcrypt.compareSync(password, data.password);
 
     if (!isPasswordCorrect) {
-      throw new Error('Invalid Password');
+      throw new Error('Invalid password. Please make sure you entered the correct password.');
     }
 
     pubsub.publish('USER_LOGGED_IN', {
-      onLogin: { data, message: 'Login Successfully', statusCode: 200 },
+      onLogin: { data, message: 'Login successful', statusCode: 200 },
     });
 
     const responseData = {
@@ -197,7 +197,7 @@ const login = async (_, { phoneNo, password }) => {
       applink: process.env.APPLICATION_LINK,
     };
 
-    return { data: responseData, message: 'Login Successfully', statusCode: 200 };
+    return { data: responseData, message: 'Login successful', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
