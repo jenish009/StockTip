@@ -151,14 +151,20 @@ const getTipFeed = async (_, { typeFilter, userId }) => {
 const addUpdateTipModule = async (_, { id, name, imageLink, index }) => {
   try {
     let data
+    let updateData = {}
     if (!id) {
       data = await moduleModel.create({ name, imageLink, index })
     } else {
-      data = await moduleModel.findOneAndUpdate({ _id: id }, { name, imageLink, index })
+      name ? updateData["name"] = name : "";
+      imageLink ? updateData["imageLink"] = imageLink : "";
+      index ? updateData["index"] = index : "";
+
+      data = await moduleModel.findOneAndUpdate({ _id: id }, updateData)
     }
 
     return { data: data, statusCode: 200 };
   } catch (error) {
+    console.log('error', error)
     return { error: error.message, statusCode: 400 };
   }
 };
