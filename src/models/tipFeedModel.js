@@ -10,7 +10,6 @@ const tipFeedSchema = new mongoose.Schema(
     },
     currentValue: {
       type: String,
-      required: true,
     },
     targets: {
       type: Array,
@@ -23,11 +22,9 @@ const tipFeedSchema = new mongoose.Schema(
     },
     trading_date: {
       type: Date,
-      required: true,
     },
     next_trading_date: {
       type: Date,
-      required: true,
     },
     position: {
       type: String,

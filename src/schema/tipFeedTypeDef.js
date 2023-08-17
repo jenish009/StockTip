@@ -11,11 +11,11 @@ const tipFeedTypeDef = gql`
     createTipFeed(
       symbol: String!
       targets: JSONObject
-      stopLoss: String!
-      direction: String!
-      date: String!
-      currentValue: String!
-      type: String!
+      stopLoss: String
+      direction: String
+      date: String
+      currentValue: String
+      type: String
       subscriptionId: [String]
       trading_date : String
       next_trading_date : String
@@ -30,6 +30,7 @@ const tipFeedTypeDef = gql`
       currentDate : String
       quantity : Int
       note : String
+      moduleId : ID
     ): response
     addUpdateTipModule(
       name : String

@@ -25,7 +25,8 @@ const createTipFeed = async (
     isFutureOrEnquity,
     currentDate,
     quantity,
-    note
+    note,
+    moduleId
   },
 ) => {
   try {
@@ -49,11 +50,11 @@ const createTipFeed = async (
       isFutureOrEnquity,
       currentDate,
       quantity,
-      note
+      note,
+      moduleId
     }
     if (!symbol) throw new Error('Please Enter Symbol');
     if (!currentValue) throw new Error('Please Enter Current Value of Symbol');
-    if (!date) throw new Error('Please Enter Valid Date');
 
     let createTipFeed = await tipFeedModel.create(body);
 
@@ -67,7 +68,7 @@ const createTipFeed = async (
   }
 };
 
-const getTipFeed = async (_, { typeFilter, userId }) => {
+const getTipFeed = async (_, { typeFilter, userId, moduleId }) => {
   try {
     if (!userId) throw new Error('Please Enter UserId');
     let filter = {};
@@ -122,10 +123,14 @@ const getTipFeed = async (_, { typeFilter, userId }) => {
         },
       },
     ]);
-    console.log('userData', userData);
+
     if (typeFilter) {
-      filter = { ...filter, type: typeFilter };
+      filter.type = typeFilter;
     }
+    if (moduleId) {
+      filter.moduleId = moduleId;
+    }
+
     if (userData[0].role != 'Admin') {
       filter = {
         ...filter,
@@ -135,7 +140,6 @@ const getTipFeed = async (_, { typeFilter, userId }) => {
         ],
       };
     }
-    console.log('filter>', filter);
     let TipFeedData = await tipFeedModel
       .find(filter)
       .sort({ _id: -1 });
