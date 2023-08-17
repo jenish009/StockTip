@@ -25,20 +25,24 @@ const createsubscriptionPlan = async (
 
 const getsubscriptionPlan = async (_, { id }) => {
   try {
-    let filter = {};
-    if (id) {
-      filter = { _id: id };
+    const filter = id ? { _id: id } : {};
+
+    const data = await subscriptionPlanModel.find(filter).sort({ index: 1 });
+
+    if (data.length === 0) {
+      throw new Error('Subscription Plan Not Found');
     }
-
-    let data = await subscriptionPlanModel.find(filter).sort({ amount: 1 });
-
-    if (data.length == 0) throw new Error('Subscription Plan Not Found');
 
     return { data, statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
 };
+
+module.exports = {
+  getsubscriptionPlan,
+};
+
 module.exports = {
   Query: {
     getsubscriptionPlan,

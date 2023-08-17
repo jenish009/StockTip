@@ -6,6 +6,7 @@ const userSubscriptionPlanTypeDef = gql`
       subscriptionPlanId: ID!
       userId: ID!
       startDate: String!
+      duration : Int
     ): response
   }
 `;

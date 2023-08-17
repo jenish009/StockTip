@@ -12,12 +12,20 @@ const salt = bcrypt.genSaltSync(saltRounds);
 
 const signup = async (_, { email, name }) => {
   try {
-    if (!email) throw new Error('Please Enter Email Id');
-    if (!name) throw new Error('Please Enter Name');
-    let data;
+    if (!email) {
+      throw new Error('Please Enter Email Id');
+    }
+    if (!name) {
+      throw new Error('Please Enter Name');
+    }
 
     let userExist = await userModel.findOne({ email });
-    if (userExist && userExist.isVerified == true) throw new Error('Email Already Registered');
+
+    if (userExist && userExist.isVerified) {
+      throw new Error('Email Already Registered');
+    }
+
+    let data;
 
     if (!userExist) {
       data = await userModel.create({
@@ -25,21 +33,20 @@ const signup = async (_, { email, name }) => {
         name,
       });
     } else {
-      data = userExist
+      data = userExist;
     }
-    let otp = otpGenerate()
 
-    await otpModel.findOneAndUpdate({ email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true })
+    const otp = otpGenerate();
 
-    let emailTemplate = fs
-      .readFileSync("utils/emailTemplates/emailTemplate.html", "utf8")
-      .toString();
-    emailTemplate = emailTemplate.replace(/\|USERNAME\|/g, name)
-    emailTemplate = emailTemplate.replace(/\|OTP\|/g, otp)
+    await otpModel.findOneAndUpdate({ email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true });
 
-    let emailSent = await sendEmail(email, emailTemplate, 'OTP to login')
+    const emailTemplate = fs.readFileSync("utils/emailTemplates/emailTemplate.html", "utf8")
+      .replace(/\|USERNAME\|/g, name)
+      .replace(/\|OTP\|/g, otp);
 
-    return { data, message: 'OTP Has Been Sent To Your Email ', statusCode: 200 };
+    const emailSent = await sendEmail(email, emailTemplate, 'OTP to login');
+
+    return { data, message: 'OTP Has Been Sent To Your Email', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
@@ -47,13 +54,25 @@ const signup = async (_, { email, name }) => {
 
 const verifyOtp = async (_, { otp, email }) => {
   try {
-    if (!otp) throw new Error('Please Enter Valid OTP')
-    if (!email) throw new Error('Email Not Found')
+    if (!otp) {
+      throw new Error('Please Enter Valid OTP');
+    }
+    if (!email) {
+      throw new Error('Email Not Found');
+    }
 
-    let otpVerified = await otpModel.findOne({ email, otp })
-    if (!otpVerified) throw new Error("Invalid OTP")
+    const otpVerified = await otpModel.findOne({ email, otp });
 
-    let verifyUser = await userModel.findOne({ email })
+    if (!otpVerified) {
+      throw new Error("Invalid OTP");
+    }
+
+    const verifyUser = await userModel.findOne({ email });
+
+    if (!verifyUser) {
+      throw new Error("User Not Found");
+    }
+
     const userData = verifyUser.toObject();
 
     return { data: { verify: true, ...userData }, statusCode: 200 };
@@ -61,62 +80,87 @@ const verifyOtp = async (_, { otp, email }) => {
   } catch (error) {
     return { data: { verify: false }, error: error.message, statusCode: 400 };
   }
-}
+};
 
 const updateProfile = async (_, { id, phoneNo, password }) => {
   try {
-    if (!id) throw new Error("User Not Found")
-    if (!phoneNo) throw new Error("Please Enter Valid Phone Number")
-    if (!password) throw new Error("Please Enter Password")
-    if (password.length < 8)
-      throw new Error('Passwords Must Contain 8 Characters');
+    if (!id) {
+      throw new Error("User Not Found");
+    }
+    if (!phoneNo) {
+      throw new Error("Please Enter Valid Phone Number");
+    }
+    if (!password) {
+      throw new Error("Please Enter Password");
+    }
+    if (password.length < 8) {
+      throw new Error('Passwords Must Contain at Least 8 Characters');
+    }
+
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    let profileUpdated = await userModel.findOneAndUpdate({ _id: id }, { phoneNo, password: hashedPassword, isVerified: true }, { new: true }
-    )
-    return { data: profileUpdated, statusCode: 200, };
+    const profileUpdated = await userModel.findOneAndUpdate(
+      { _id: id },
+      { phoneNo, password: hashedPassword, isVerified: true },
+      { new: true }
+    );
 
-  } catch (error) {
-  }
-}
-
-const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
-  try {
-    if (!phoneOrEmail) throw new Error("Please Enter Email Or Password")
-
-    let filter = /^[0-9]+$/.test(phoneOrEmail) ? { phoneNo: phoneOrEmail } : { email: phoneOrEmail }
-
-    let userData = await userModel.findOne({ ...filter, isVerified: true })
-    if (!userData) throw new Error("User Not Found")
-
-    let otp = otpGenerate()
-
-    await otpModel.findOneAndUpdate({ email: userData.email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true })
-
-    let emailTemplate = fs
-      .readFileSync("utils/emailTemplates/forgotPasswordTemplate.html", "utf8")
-      .toString();
-    emailTemplate = emailTemplate.replace(/\|USERNAME\|/g, userData.name)
-    emailTemplate = emailTemplate.replace(/\|OTP\|/g, otp)
-
-    let emailSent = await sendEmail(userData.email, emailTemplate, 'Password Reset OTP - Valid for 2 Minutes')
-
-    return { data: userData, message: 'The OTP has been sent to the registered email address', statusCode: 200, };
-
+    return { data: profileUpdated, statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
-}
+};
+
+const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
+  try {
+    if (!phoneOrEmail) {
+      throw new Error("Please Enter Email Or Phone Number");
+    }
+
+    const isPhone = /^[0-9]+$/.test(phoneOrEmail);
+    const filter = isPhone ? { phoneNo: phoneOrEmail } : { email: phoneOrEmail };
+
+    const userData = await userModel.findOne({ ...filter, isVerified: true });
+
+    if (!userData) {
+      throw new Error("User Not Found");
+    }
+
+    const otp = otpGenerate();
+
+    await otpModel.findOneAndUpdate({ email: userData.email }, { otp }, { upsert: true, new: true, setDefaultsOnInsert: true });
+
+    const emailTemplate = fs.readFileSync("utils/emailTemplates/forgotPasswordTemplate.html", "utf8")
+      .replace(/\|USERNAME\|/g, userData.name)
+      .replace(/\|OTP\|/g, otp);
+
+    const emailSent = await sendEmail(userData.email, emailTemplate, 'Password Reset OTP - Valid for 2 Minutes');
+
+    return { data: userData, message: 'The OTP has been sent to the registered email address', statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
 const forgotPassword = async (_, { email, password }) => {
   try {
-    if (!email) throw new Error('Please Enter Valid Email');
-    if (!password) throw new Error("Please Enter Password")
-    if (password.length < 8)
-      throw new Error('Passwords Must Contain 8 Characters');
+    if (!email) {
+      throw new Error('Please Enter Valid Email');
+    }
+    if (!password) {
+      throw new Error("Please Enter Password");
+    }
+    if (password.length < 8) {
+      throw new Error('Passwords Must Contain at Least 8 Characters');
+    }
 
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    let profileUpdated = await userModel.findOneAndUpdate({ email }, { password: hashedPassword }, { new: true })
+    const profileUpdated = await userModel.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true }
+    );
+
     return { data: profileUpdated, message: "The password has been successfully updated", statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
@@ -125,20 +169,35 @@ const forgotPassword = async (_, { email, password }) => {
 
 const login = async (_, { phoneNo, password }) => {
   try {
-    if (!phoneNo) throw new Error('Please Enter Valid Email');
-    if (!password) throw new Error('Please Enter Password');
+    if (!phoneNo) {
+      throw new Error('Please Enter Valid Phone Number');
+    }
+    if (!password) {
+      throw new Error('Please Enter Password');
+    }
 
-    let data = await userModel.findOne({ phoneNo }).lean();
+    const data = await userModel.findOne({ phoneNo }).lean();
 
-    if (!data) throw new Error('User Not Found');
+    if (!data) {
+      throw new Error('User Not Found');
+    }
 
     const isPasswordCorrect = bcrypt.compareSync(password, data.password);
-    if (!isPasswordCorrect) throw new Error('Invilid Password');
+
+    if (!isPasswordCorrect) {
+      throw new Error('Invalid Password');
+    }
+
     pubsub.publish('USER_LOGGED_IN', {
       onLogin: { data, message: 'Login Successfully', statusCode: 200 },
     });
 
-    return { data: { ...data, applink: process.env.APPLICATION_LINK }, message: 'Login Successfully', statusCode: 200 };
+    const responseData = {
+      ...data,
+      applink: process.env.APPLICATION_LINK,
+    };
+
+    return { data: responseData, message: 'Login Successfully', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
@@ -146,9 +205,11 @@ const login = async (_, { phoneNo, password }) => {
 
 const getUserById = async (_, { id }) => {
   try {
-    if (!id) throw new Error('User Not Found');
+    if (!id) {
+      throw new Error('User Not Found');
+    }
 
-    let data = await userModel.aggregate([
+    const data = await userModel.aggregate([
       {
         $match: {
           _id: new ObjectId(id),
@@ -190,7 +251,6 @@ const getUserById = async (_, { id }) => {
           as: 'subscriptionPlan',
         },
       },
-
       {
         $project: {
           _id: 1,
@@ -199,12 +259,8 @@ const getUserById = async (_, { id }) => {
           password: 1,
           phoneNo: 1,
           role: { $arrayElemAt: ['$role.name', 0] },
-          expireDate: {
-            $arrayElemAt: ['$usersubscriptionplans.expireDate', 0],
-          },
-          subscriptionPlanId: {
-            $arrayElemAt: ['$usersubscriptionplans.subscriptionPlanId', 0],
-          },
+          expireDate: { $arrayElemAt: ['$usersubscriptionplans.expireDate', 0] },
+          subscriptionPlanId: { $arrayElemAt: ['$usersubscriptionplans.subscriptionPlanId', 0] },
           subscriptionPlanName: { $arrayElemAt: ['$subscriptionPlan.name', 0] },
         },
       },

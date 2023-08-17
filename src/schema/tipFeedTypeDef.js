@@ -9,6 +9,7 @@ const tipFeedTypeDef = gql`
 
   type Mutation {
     createTipFeed(
+      id : ID
       symbol: String!
       targets: JSONObject
       stopLoss: String

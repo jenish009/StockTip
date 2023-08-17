@@ -6,6 +6,7 @@ const pubsub = new PubSub();
 const createTipFeed = async (
   _,
   {
+    id,
     symbol,
     currentValue,
     targets,
@@ -30,7 +31,14 @@ const createTipFeed = async (
   },
 ) => {
   try {
-    let body = {
+    if (!symbol) {
+      throw new Error('Please Enter Symbol');
+    }
+    if (!currentValue) {
+      throw new Error('Please Enter Current Value of Symbol');
+    }
+
+    const tipData = {
       symbol,
       currentValue,
       targets,
@@ -52,17 +60,25 @@ const createTipFeed = async (
       quantity,
       note,
       moduleId
+    };
+
+    let result;
+    if (!id) {
+      result = await tipFeedModel.create(tipData);
+    } else {
+      result = await tipFeedModel.findOneAndUpdate({ _id: id }, tipData);
     }
-    if (!symbol) throw new Error('Please Enter Symbol');
-    if (!currentValue) throw new Error('Please Enter Current Value of Symbol');
 
-    let createTipFeed = await tipFeedModel.create(body);
+    if (!result) {
+      throw new Error('Something Went Wrong');
+    }
 
-    if (!createTipFeed) throw new Error('Something Went Wrong');
+    const operationType = id ? 'Updated' : 'Added';
     pubsub.publish('TIP_ADD', {
-      onTipAdd: { data: createTipFeed, statusCode: 200 },
+      onTipAdd: { data: result, statusCode: 200 },
     });
-    return { message: 'Tip Added', statusCode: 200 };
+
+    return { message: `Tip ${operationType}`, statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
@@ -70,9 +86,13 @@ const createTipFeed = async (
 
 const getTipFeed = async (_, { typeFilter, userId, moduleId }) => {
   try {
-    if (!userId) throw new Error('Please Enter UserId');
-    let filter = {};
-    let userData = await userModel.aggregate([
+    if (!userId) {
+      throw new Error('Please Enter UserId');
+    }
+
+    const filter = {};
+
+    const userData = await userModel.aggregate([
       {
         $match: {
           _id: new ObjectId(userId),
@@ -131,22 +151,24 @@ const getTipFeed = async (_, { typeFilter, userId, moduleId }) => {
       filter.moduleId = moduleId;
     }
 
-    if (userData[0].role != 'Admin') {
-      filter = {
-        ...filter,
-        $or: [
-          { subscriptionId: { $in: userData[0]?.subscriptionPlanId || [] } },
-          { subscriptionId: null },
-        ],
-      };
+    if (userData[0].role !== 'Admin') {
+      const subscriptionPlanIds = userData[0]?.subscriptionPlanId || [];
+      filter.$or = [
+        { subscriptionId: { $in: subscriptionPlanIds } },
+        { subscriptionId: null },
+        { subscriptionId: [] },
+      ];
     }
-    let TipFeedData = await tipFeedModel
+
+    const tipFeedData = await tipFeedModel
       .find(filter)
       .sort({ _id: -1 });
 
-    if (!TipFeedData) throw new Error('Tip Not Found');
+    if (!tipFeedData || tipFeedData.length === 0) {
+      throw new Error('Tip Not Found');
+    }
 
-    return { data: TipFeedData, statusCode: 200 };
+    return { data: tipFeedData, statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
@@ -154,21 +176,29 @@ const getTipFeed = async (_, { typeFilter, userId, moduleId }) => {
 
 const addUpdateTipModule = async (_, { id, name, imageLink, index }) => {
   try {
-    let data
-    let updateData = {}
-    if (!id) {
-      data = await moduleModel.create({ name, imageLink, index })
-    } else {
-      name ? updateData["name"] = name : "";
-      imageLink ? updateData["imageLink"] = imageLink : "";
-      index ? updateData["index"] = index : "";
+    let data;
 
-      data = await moduleModel.findOneAndUpdate({ _id: id }, updateData)
+    if (!id) {
+      data = await moduleModel.create({ name, imageLink, index });
+    } else {
+      const updateData = {};
+
+      if (name) {
+        updateData.name = name;
+      }
+      if (imageLink) {
+        updateData.imageLink = imageLink;
+      }
+      if (index) {
+        updateData.index = index;
+      }
+
+      data = await moduleModel.findOneAndUpdate({ _id: id }, updateData, { new: true });
     }
 
-    return { data: data, statusCode: 200 };
+    return { data, statusCode: 200 };
   } catch (error) {
-    console.log('error', error)
+    console.log('error', error);
     return { error: error.message, statusCode: 400 };
   }
 };

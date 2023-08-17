@@ -5,7 +5,7 @@ const {
 const moment = require('moment');
 const addUserSubscription = async (
   _,
-  { subscriptionPlanId, userId, startDate },
+  { subscriptionPlanId, userId, startDate, duration },
 ) => {
   try {
     if (!subscriptionPlanId) throw new Error('Please Select Subscription');
@@ -16,7 +16,7 @@ const addUserSubscription = async (
     });
     if (!subscriptionData) throw new Error('Subscription Plan Not Found');
 
-    const expireDate = moment(startDate).add(subscriptionData.days, 'days');
+    const expireDate = moment(startDate).add(duration, 'days');
 
     let createUserSubsciption = await userSubscriptionPlanModel.create({
       subscriptionPlanId,
