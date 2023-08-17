@@ -1,4 +1,4 @@
-const { tipFeedModel, userModel } = require('../models/index');
+const { tipFeedModel, userModel, moduleModel } = require('../models/index');
 const { ObjectId } = require('mongoose').Types;
 const { PubSub } = require('graphql-subscriptions');
 const pubsub = new PubSub();
@@ -148,16 +148,41 @@ const getTipFeed = async (_, { typeFilter, userId }) => {
   }
 };
 
+const addUpdateTipModule = async (_, { id, name, imageLink, index }) => {
+  try {
+    let data
+    if (!id) {
+      data = await moduleModel.create({ name, imageLink, index })
+    } else {
+      data = await moduleModel.findOneAndUpdate({ _id: id }, { name, imageLink, index })
+    }
 
+    return { data: data, statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
+
+const getTipModule = async () => {
+  try {
+    data = await moduleModel.find().sort({ index: 1 })
+
+    return { data, statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
 const onTipAdd = {
   subscribe: () => pubsub.asyncIterator(['TIP_ADD']),
 };
 module.exports = {
   Query: {
     getTipFeed,
+    getTipModule
   },
   Mutation: {
     createTipFeed,
+    addUpdateTipModule
   },
   Subscription: {
     onTipAdd

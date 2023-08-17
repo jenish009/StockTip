@@ -3,6 +3,8 @@ const { gql } = require('apollo-server-express');
 const tipFeedTypeDef = gql`
   type Query {
     getTipFeed(typeFilter: String, userId: ID!): response
+    getTipModule: response
+
   }
 
   type Mutation {
@@ -29,6 +31,12 @@ const tipFeedTypeDef = gql`
       quantity : Int
       note : String
     ): response
+    addUpdateTipModule(
+      name : String
+      imageLink : String
+      index : Int
+      id : ID
+      ) : response
   }
   type Subscription {
     onTipAdd: response
