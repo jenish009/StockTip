@@ -10,7 +10,7 @@ const userTypeDefs = gql`
     login(phoneNo: BigInt!, password: String!): response
     signup( email: String!, name: String!): response
     verifyOtp(email : String!, otp : String!):response
-    updateProfile(id:ID!, phoneNo:String!, password : String!) : response
+    updateProfile(id:ID!, phoneNo:String, password : String, name : String, email : String) : response
     forgotPassword(email : String! , password : String!) : response
   } 
 

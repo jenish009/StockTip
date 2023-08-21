@@ -2,6 +2,8 @@ const { userModel, otpModel } = require('../models/index');
 const { PubSub } = require('graphql-subscriptions');
 const pubsub = new PubSub();
 const bcrypt = require('bcrypt');
+const CryptoJS = require('crypto-js');
+
 const { ObjectId } = require('mongoose').Types;
 const { sendEmail } = require('../../utils/sendEmail')
 const fs = require("fs");
@@ -82,37 +84,66 @@ const verifyOtp = async (_, { otp, email }) => {
   }
 };
 
-const updateProfile = async (_, { id, phoneNo, password }) => {
+const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
   try {
     if (!id) {
       throw new Error("User not found. Please provide a valid user ID.");
     }
-    if (!phoneNo) {
-      throw new Error("Please provide a valid phone number.");
-    }
-    if (!/^\d{10}$/.test(phoneNo)) {
-      throw new Error("Please provide a valid 10-digit phone number.");
-    }
-    if (!password) {
-      throw new Error("Please provide a password.");
-    }
-    if (password.length < 8) {
-      throw new Error('Passwords must be at least 8 characters long.');
+
+    const updateFilter = { isVerified: true };
+    const existingUser = await userModel.findOne({ _id: id });
+
+    if (!existingUser) {
+      throw new Error("User not found.");
     }
 
-    const hashedPassword = bcrypt.hashSync(password, salt);
+    if (phoneNo) {
+      if (!/^\d{10}$/.test(phoneNo)) {
+        throw new Error("Please provide a valid 10-digit phone number.");
+      }
+      updateFilter.phoneNo = phoneNo;
+    }
+
+    if (password && password.length >= 8) {
+      const hashedPassword = CryptoJS.SHA256(password).toString();
+      updateFilter.password = hashedPassword;
+    }
+
+    if (name) {
+      updateFilter.name = name;
+    }
+
+    if (email) {
+      const duplicateUser = await userModel.findOne({
+        $and: [
+          { _id: { $ne: id } },
+          { $or: [{ email }, { phoneNo }] }
+        ]
+      });
+      if (duplicateUser) {
+        if (duplicateUser.email == email) {
+          throw new Error("Email address is already in use.");
+        } else if (duplicateUser.phoneNo == phoneNo) {
+          throw new Error("Phone number is already registered.");
+        }
+      }
+
+      updateFilter.email = email;
+    }
 
     const profileUpdated = await userModel.findOneAndUpdate(
       { _id: id },
-      { phoneNo, password: hashedPassword, isVerified: true },
+      updateFilter,
       { new: true }
     );
 
     return { data: profileUpdated, statusCode: 200 };
   } catch (error) {
+    console.log("error", error);
     return { error: error.message, statusCode: 400 };
   }
 };
+
 
 const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
   try {
@@ -157,7 +188,7 @@ const forgotPassword = async (_, { email, password }) => {
       throw new Error('Passwords must be at least 8 characters long.');
     }
 
-    const hashedPassword = bcrypt.hashSync(password, salt);
+    const hashedPassword = CryptoJS.SHA256(password).toString();
 
     const profileUpdated = await userModel.findOneAndUpdate(
       { email },
@@ -186,7 +217,7 @@ const login = async (_, { phoneNo, password }) => {
       throw new Error('User not found. Please check your phone number or sign up.');
     }
 
-    const isPasswordCorrect = bcrypt.compareSync(password, data.password);
+    const isPasswordCorrect = data.password === CryptoJS.SHA256(password).toString();
 
     if (!isPasswordCorrect) {
       throw new Error('Invalid password. Please make sure you entered the correct password.');
