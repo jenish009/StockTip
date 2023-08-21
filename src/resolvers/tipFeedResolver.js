@@ -78,7 +78,7 @@ const createTipFeed = async (
   }
 };
 
-const getTipFeed = async (_, { typeFilter, userId, moduleId }) => {
+const getTipFeed = async (_, { userId, moduleId }) => {
   try {
     if (!userId) {
       throw new Error('Please Enter UserId');
@@ -138,9 +138,6 @@ const getTipFeed = async (_, { typeFilter, userId, moduleId }) => {
       },
     ]);
 
-    if (typeFilter) {
-      filter.type = typeFilter;
-    }
     if (moduleId) {
       filter.moduleId = moduleId;
     }

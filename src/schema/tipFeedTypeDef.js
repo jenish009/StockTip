@@ -2,7 +2,7 @@ const { gql } = require('apollo-server-express');
 
 const tipFeedTypeDef = gql`
   type Query {
-    getTipFeed(typeFilter: String, userId: ID!): response
+    getTipFeed(userId: ID!, moduleId : ID): response
     getTipModule: response
 
   }
