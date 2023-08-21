@@ -17,7 +17,7 @@ const tipFeedTypeDef = gql`
       entry : String
       entry_date : String
       status : String
-      quantity : Int
+      quantity : String
       confirmation : String
       targets: JSONObject
       isEntryMissed : Boolean   
