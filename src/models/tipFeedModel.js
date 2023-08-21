@@ -4,44 +4,35 @@ const ObjectId = mongoose.Types.ObjectId;
 // Define the User schema
 const tipFeedSchema = new mongoose.Schema(
   {
-    symbol: {
-      type: String,
-      required: true,
+    isFutureOrEnquity: {
+      type: Boolean,
     },
-    currentValue: {
-      type: String,
-    },
-    targets: {
-      type: Array,
-    },
-    stopLoss: {
-      type: String,
-    },
-    direction: {
-      type: String,
-    },
-    trading_date: {
-      type: Date,
-    },
-    next_trading_date: {
+    currentDate: {
       type: Date,
     },
     position: {
       type: String,
     },
-    entry_price: {
+    stopLoss: {
       type: String,
-
+    },
+    entry: {
+      type: String,
     },
     entry_date: {
       type: Date,
     },
-    type: {
+    status: {
       type: String,
     },
-    subscriptionId: {
-      type: [ObjectId],
-      default: null,
+    quantity: {
+      type: Number
+    },
+    confirmation: {
+      type: String
+    },
+    targets: {
+      type: Array,
     },
     isEntryMissed: {
       type: Boolean,
@@ -55,21 +46,20 @@ const tipFeedSchema = new mongoose.Schema(
     stopLossMissedInstruction: {
       type: String,
     },
-    isFutureOrEnquity: {
-      type: Boolean,
-    },
-    currentDate: {
-      type: Date,
-    },
-    quantity: {
-      type: Number
-    },
     note: {
       type: String,
     },
+    subscriptionId: {
+      type: [ObjectId],
+      default: null,
+    },
     moduleId: {
       type: [ObjectId],
-    }
+    },
+    symbol: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true, versionKey: false },
 );

@@ -9,29 +9,25 @@ const tipFeedTypeDef = gql`
 
   type Mutation {
     createTipFeed(
-      id : ID
-      symbol: String!
-      targets: JSONObject
-      stopLoss: String
-      direction: String
-      date: String
-      currentValue: String
-      type: String
-      subscriptionId: [String]
-      trading_date : String
-      next_trading_date : String
+      isFutureOrEnquity : Boolean
+      currentDate : String
       position : String
-      entry_price : String
+      symbol: String!
+      stopLoss: String
+      entry : String
       entry_date : String
+      status : String
+      quantity : Int
+      confirmation : String
+      targets: JSONObject
       isEntryMissed : Boolean   
       entryMissedInstruction : String
       isStopLossMissed : Boolean
       stopLossMissedInstruction : String   
-      isFutureOrEnquity : Boolean
-      currentDate : String
-      quantity : Int
       note : String
       moduleId : ID
+      subscriptionId: [String]
+      id : ID
     ): response
     addUpdateTipModule(
       name : String
