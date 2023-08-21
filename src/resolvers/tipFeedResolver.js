@@ -31,9 +31,9 @@ const createTipFeed = async (
     if (!symbol) {
       throw new Error('Please Enter Symbol');
     }
-    if (!currentValue) {
-      throw new Error('Please Enter Current Value of Symbol');
-    }
+    // if (!currentValue) {
+    //   throw new Error('Please Enter Current Value of Symbol');
+    // }
 
     const tipData = {
       isFutureOrEnquity,
