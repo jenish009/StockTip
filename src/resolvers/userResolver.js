@@ -216,9 +216,9 @@ const login = async (_, { phoneNo, password }) => {
       throw new Error('User not found. Please check your phone number or sign up.');
     }
 
-    const hashedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
+    const hashedPassword = CryptoJS.AES.decrypt(data.password, encryptionKey).toString(CryptoJS.enc.Utf8);
     console.log('hashedPassword>>', hashedPassword)
-    const isPasswordCorrect = data.password == hashedPassword;
+    const isPasswordCorrect = password == hashedPassword;
 
 
     if (!isPasswordCorrect) {
