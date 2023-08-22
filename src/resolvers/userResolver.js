@@ -113,6 +113,9 @@ const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
     }
 
     if (email) {
+      updateFilter.email = email;
+    }
+    if (email || phoneNo) {
       const duplicateUser = await userModel.findOne({
         $and: [
           { _id: { $ne: id } },
@@ -126,8 +129,6 @@ const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
           throw new Error("Phone number is already registered.");
         }
       }
-
-      updateFilter.email = email;
     }
 
     const profileUpdated = await userModel.findOneAndUpdate(
