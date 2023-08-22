@@ -133,7 +133,7 @@ const getTipFeed = async (_, { userId, moduleId }) => {
         },
       },
     ]);
-    if (userData, length == 0) {
+    if (userData.length == 0) {
       throw new Error('User Not Found.');
     }
     if (moduleId) {
