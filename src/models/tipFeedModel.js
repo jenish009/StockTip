@@ -54,7 +54,7 @@ const tipFeedSchema = new mongoose.Schema(
       default: null,
     },
     moduleId: {
-      type: [ObjectId],
+      type: ObjectId,
     },
     symbol: {
       type: String,
