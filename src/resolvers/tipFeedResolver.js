@@ -212,7 +212,7 @@ const deleteTipFeed = async (_, { id }) => {
       throw new Error("Tip not found or already deleted");
     }
     pubsub.publish('TIP_ADD', {
-      onTipAdd: { data: result, statusCode: 200 },
+      onTipAdd: { data: deleteResult, statusCode: 200 },
     });
     return { message: "Tip deleted successfully", statusCode: 200 };
   } catch (error) {
