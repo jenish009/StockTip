@@ -68,7 +68,7 @@ const createTipFeed = async (
       onTipAdd: { data: result, statusCode: 200 },
     });
 
-    return { message: `Tip ${operationType}`, statusCode: 200 };
+    return { data: result, message: `Tip ${operationType}`, statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
