@@ -104,8 +104,8 @@ const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
     }
 
     if (password && password.length >= 8) {
-      const hashedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
-      updateFilter.password = hashedPassword;
+      // const hashedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
+      updateFilter.password = password;
     }
 
     if (name) {
@@ -187,11 +187,11 @@ const forgotPassword = async (_, { email, password }) => {
       throw new Error('Passwords must be at least 8 characters long.');
     }
 
-    const hashedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
+    // const hashedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
 
     const profileUpdated = await userModel.findOneAndUpdate(
       { email },
-      { password: hashedPassword },
+      { password: password },
       { new: true }
     );
 
@@ -216,9 +216,9 @@ const login = async (_, { phoneNo, password }) => {
       throw new Error('User not found. Please check your phone number or sign up.');
     }
 
-    const hashedPassword = CryptoJS.AES.decrypt(data.password, encryptionKey).toString(CryptoJS.enc.Utf8);
+    // const hashedPassword = CryptoJS.AES.decrypt(data.password, encryptionKey).toString(CryptoJS.enc.Utf8);
     console.log('hashedPassword>>', hashedPassword)
-    const isPasswordCorrect = password == hashedPassword;
+    const isPasswordCorrect = password == data.password;
 
 
     if (!isPasswordCorrect) {
