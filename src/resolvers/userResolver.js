@@ -217,7 +217,7 @@ const login = async (_, { phoneNo, password }) => {
     }
 
     // const hashedPassword = CryptoJS.AES.decrypt(data.password, encryptionKey).toString(CryptoJS.enc.Utf8);
-    console.log('hashedPassword>>', hashedPassword)
+    // console.log('hashedPassword>>', hashedPassword)
     const isPasswordCorrect = password == data.password;
 
 
