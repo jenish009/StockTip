@@ -151,8 +151,8 @@ const getTipFeed = async (_, { userId, moduleId }) => {
       .find(filter)
       .sort({ _id: -1 });
 
-    if (!tipFeedData || tipFeedData.length === 0) {
-      throw new Error('Tip Not Found');
+    if (!tipFeedData) {
+      throw new Error('No data available');
     }
 
     return { data: tipFeedData, statusCode: 200 };
