@@ -1,7 +1,6 @@
 const { userModel, otpModel } = require('../models/index');
 const { PubSub } = require('graphql-subscriptions');
 const pubsub = new PubSub();
-const bcrypt = require('bcrypt');
 const CryptoJS = require('crypto-js');
 
 const { ObjectId } = require('mongoose').Types;
@@ -9,8 +8,6 @@ const { sendEmail } = require('../../utils/sendEmail')
 const fs = require("fs");
 const { otpGenerate } = require('../../utils/common')
 
-const saltRounds = 10;
-const salt = bcrypt.genSaltSync(saltRounds);
 
 const signup = async (_, { email, name }) => {
   try {
