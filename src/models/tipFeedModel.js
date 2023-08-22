@@ -20,7 +20,7 @@ const tipFeedSchema = new mongoose.Schema(
       type: String,
     },
     entry_date: {
-      type: Date,
+      type: String,
     },
     status: {
       type: String,
