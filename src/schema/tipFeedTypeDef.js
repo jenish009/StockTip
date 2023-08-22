@@ -9,8 +9,6 @@ const tipFeedTypeDef = gql`
 
   type Mutation {
     createTipFeed(
-      isFutureOrEnquity : Boolean
-      currentDate : String
       position : String
       symbol: String!
       stopLoss: String
@@ -35,6 +33,7 @@ const tipFeedTypeDef = gql`
       index : Int
       id : ID
       ) : response
+    deleteTipFeed(id : ID): response
   }
   type Subscription {
     onTipAdd: response

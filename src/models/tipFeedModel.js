@@ -4,12 +4,6 @@ const ObjectId = mongoose.Types.ObjectId;
 // Define the User schema
 const tipFeedSchema = new mongoose.Schema(
   {
-    isFutureOrEnquity: {
-      type: Boolean,
-    },
-    currentDate: {
-      type: Date,
-    },
     position: {
       type: String,
     },

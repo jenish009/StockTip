@@ -6,8 +6,6 @@ const pubsub = new PubSub();
 const createTipFeed = async (
   _,
   {
-    isFutureOrEnquity,
-    currentDate,
     position,
     symbol,
     stopLoss,
@@ -36,8 +34,6 @@ const createTipFeed = async (
     // }
 
     const tipData = {
-      isFutureOrEnquity,
-      currentDate,
       position,
       symbol,
       stopLoss,
@@ -203,9 +199,30 @@ const getTipModule = async () => {
     return { error: error.message, statusCode: 400 };
   }
 };
+
+const deleteTipFeed = async (_, { id }) => {
+  try {
+    if (!id) {
+      throw new Error("Tip ID not provided");
+    }
+
+    const deleteResult = await tipFeedModel.deleteOne({ _id: id });
+
+    if (deleteResult.deletedCount === 0) {
+      throw new Error("Tip not found or already deleted");
+    }
+
+    return { message: "Tip deleted successfully", statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
 const onTipAdd = {
   subscribe: () => pubsub.asyncIterator(['TIP_ADD']),
 };
+
+
+
 module.exports = {
   Query: {
     getTipFeed,
@@ -213,7 +230,8 @@ module.exports = {
   },
   Mutation: {
     createTipFeed,
-    addUpdateTipModule
+    addUpdateTipModule,
+    deleteTipFeed
   },
   Subscription: {
     onTipAdd
