@@ -169,8 +169,11 @@ const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
       .replace(/\|OTP\|/g, otp);
 
     const emailSent = await sendEmail(userData.email, emailTemplate, 'Password Reset OTP - Valid for 2 Minutes');
+    const emailDisplay = `${userData.email.substring(0, 3)}********${userData.email.substring(userData.email.indexOf('@') - 3)}`;
 
-    return { data: userData, message: 'An OTP has been sent to your registered email address. Please check your inbox.', statusCode: 200 };
+    return {
+      data: userData, message: `An OTP has been sent to your registered email address ${emailDisplay}. Please check your inbox.`, statusCode: 200
+    };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }

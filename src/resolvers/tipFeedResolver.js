@@ -3,35 +3,31 @@ const { ObjectId } = require('mongoose').Types;
 const { PubSub } = require('graphql-subscriptions');
 const pubsub = new PubSub();
 
-const createTipFeed = async (
-  _,
-  {
-    position,
-    symbol,
-    stopLoss,
-    entry,
-    entry_date,
-    status,
-    quantity,
-    confirmation,
-    targets,
-    isEntryMissed,
-    entryMissedInstruction,
-    isStopLossMissed,
-    stopLossMissedInstruction,
-    note,
-    id,
-    subscriptionId,
-    moduleId
-  },
-) => {
+const createTipFeed = async (_, args) => {
   try {
+    const {
+      id,
+      position,
+      symbol,
+      stopLoss,
+      entry,
+      entry_date,
+      status,
+      quantity,
+      confirmation,
+      targets,
+      isEntryMissed,
+      entryMissedInstruction,
+      isStopLossMissed,
+      stopLossMissedInstruction,
+      note,
+      subscriptionId,
+      moduleId
+    } = args;
+
     if (!symbol) {
       throw new Error('Please Enter Symbol');
     }
-    // if (!currentValue) {
-    //   throw new Error('Please Enter Current Value of Symbol');
-    // }
 
     const tipData = {
       position,
@@ -53,14 +49,14 @@ const createTipFeed = async (
     };
 
     let result;
+
     if (!id) {
       result = await tipFeedModel.create(tipData);
     } else {
-      result = await tipFeedModel.findOneAndUpdate({ _id: id }, tipData);
-    }
-
-    if (!result) {
-      throw new Error('Something Went Wrong');
+      result = await tipFeedModel.findOneAndUpdate({ _id: id }, tipData, { new: true });
+      if (!result) {
+        throw new Error('Something Went Wrong');
+      }
     }
 
     const operationType = id ? 'Updated' : 'Added';
@@ -73,6 +69,7 @@ const createTipFeed = async (
     return { error: error.message, statusCode: 400 };
   }
 };
+
 
 const getTipFeed = async (_, { userId, moduleId }) => {
   try {
