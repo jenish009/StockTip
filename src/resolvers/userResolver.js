@@ -83,7 +83,7 @@ const verifyOtp = async (_, { otp, email }) => {
   }
 };
 
-const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
+const updateProfile = async (_, { id, countryCode, phoneNo, password, name, email }) => {
   try {
     if (!id) {
       throw new Error("User not found. Please provide a valid user ID.");
@@ -100,7 +100,12 @@ const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
       if (!/^\d{10}$/.test(phoneNo)) {
         throw new Error("Please provide a valid 10-digit phone number.");
       }
-      updateFilter.phoneNo = phoneNo;
+      if (countryCode) {
+        updateFilter.countryCode = countryCode;
+        updateFilter.phoneNo = phoneNo;
+      } else {
+        updateFilter.phoneNo = phoneNo;
+      }
     }
 
     if (password && password.length >= 8) {
@@ -115,17 +120,31 @@ const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
     if (email) {
       updateFilter.email = email;
     }
+
     if (email || phoneNo) {
       const duplicateUser = await userModel.findOne({
         $and: [
           { _id: { $ne: id } },
-          { $or: [{ email }, { phoneNo }] }
+          {
+            $or: [
+              { email },
+              {
+                $and: [
+                  { countryCode: updateFilter.countryCode },
+                  { phoneNo: updateFilter.phoneNo }
+                ]
+              }
+            ]
+          }
         ]
       });
       if (duplicateUser) {
         if (duplicateUser.email == email) {
           throw new Error("Email address is already in use.");
-        } else if (duplicateUser.phoneNo == phoneNo) {
+        } else if (
+          duplicateUser.countryCode === updateFilter.countryCode &&
+          duplicateUser.phoneNo === updateFilter.phoneNo
+        ) {
           throw new Error("Phone number is already registered.");
         }
       }
@@ -144,15 +163,14 @@ const updateProfile = async (_, { id, phoneNo, password, name, email }) => {
   }
 };
 
-
-const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
+const forgotPasswordSendOtp = async (_, { phoneOrEmail, countryCode }) => {
   try {
     if (!phoneOrEmail) {
       throw new Error("Please provide a valid email or phone number.");
     }
 
     const isPhone = /^[0-9]+$/.test(phoneOrEmail);
-    const filter = isPhone ? { phoneNo: phoneOrEmail } : { email: phoneOrEmail };
+    const filter = isPhone ? { phoneNo: phoneOrEmail, countryCode } : { email: phoneOrEmail };
 
     const userData = await userModel.findOne({ ...filter, isVerified: true });
 
@@ -172,7 +190,7 @@ const forgotPasswordSendOtp = async (_, { phoneOrEmail }) => {
     const emailDisplay = `${userData.email.substring(0, 3)}********${userData.email.substring(userData.email.indexOf('@') - 3)}`;
 
     return {
-      data: userData, message: `An OTP has been sent to your registered email address ${emailDisplay}. Please check your inbox.`, statusCode: 200
+      data: userData, message: `OTP has been sent to your registered email address ${emailDisplay}. Please check your inbox.`, statusCode: 200
     };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
@@ -205,7 +223,7 @@ const forgotPassword = async (_, { email, password }) => {
   }
 };
 
-const login = async (_, { phoneNo, password }) => {
+const login = async (_, { countryCode, phoneNo, password }) => {
   try {
     if (!phoneNo) {
       throw new Error('Please provide a valid phone number.');
@@ -214,7 +232,7 @@ const login = async (_, { phoneNo, password }) => {
       throw new Error('Please enter your password.');
     }
 
-    const data = await userModel.findOne({ phoneNo }).lean();
+    const data = await userModel.findOne({ countryCode, phoneNo }).lean();
 
     if (!data) {
       throw new Error('User not found. Please check your phone number or sign up.');
@@ -223,7 +241,6 @@ const login = async (_, { phoneNo, password }) => {
     // const hashedPassword = CryptoJS.AES.decrypt(data.password, encryptionKey).toString(CryptoJS.enc.Utf8);
     // console.log('hashedPassword>>', hashedPassword)
     const isPasswordCorrect = password == data.password;
-
 
     if (!isPasswordCorrect) {
       throw new Error('Invalid password. Please make sure you entered the correct password.');
@@ -243,6 +260,7 @@ const login = async (_, { phoneNo, password }) => {
     return { error: error.message, statusCode: 400 };
   }
 };
+
 
 const getUserById = async (_, { id }) => {
   try {
