@@ -9,6 +9,9 @@ const appMetaDataSchema = new mongoose.Schema(
         link: {
             type: String,
         },
+        componyPhoneNumber: {
+            type: String,
+        },
     },
     { versionKey: false, timestamps: true },
 );
