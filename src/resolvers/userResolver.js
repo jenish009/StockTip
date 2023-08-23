@@ -47,7 +47,7 @@ const signup = async (_, { email, name }) => {
 
     const emailSent = await sendEmail(email, emailTemplate, 'OTP to login');
 
-    return { data, message: 'An OTP has been sent to your email address. Please check your inbox.', statusCode: 200 };
+    return { data, message: 'OTP has been sent to your email address. Please check your inbox.', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
