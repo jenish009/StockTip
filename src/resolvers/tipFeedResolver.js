@@ -6,12 +6,12 @@ const multer = require('multer');
 const fs = require('fs');
 const fastcsv = require('fast-csv');
 
+const upload = multer({ dest: 'uploads/' }); // Specify the destination folder for uploaded files
+
 const bulkCreate = async (parent, args, context) => {
   try {
-    if (!args.args.filePath) {
-      throw new Error('File path not provided');
-    }
-    const fileData = fs.readFileSync(args.args.filePath, 'utf8');
+    const file = args.args.file; // Assuming 'file' is the name of the file field in the form-data
+    const fileData = fs.readFileSync(file.path, 'utf8');
 
     let jsonData = [];
 
@@ -25,14 +25,13 @@ const bulkCreate = async (parent, args, context) => {
             if (row[`targets_${i}_value`] && row[`targets_${i}_date`]) {
               targets.push({
                 value: row[`targets_${i}_value`],
-                date: row[`targets_${i}_date`]
+                date: row[`targets_${i}_date`],
               });
             }
           }
 
           // Create the document for tipFeedModel
           const tipFeedDoc = {
-            id: row.id,
             position: row.position,
             stopLoss: row.stopLoss,
             entry: row.entry,
@@ -46,9 +45,9 @@ const bulkCreate = async (parent, args, context) => {
             isStopLossMissed: row.isStopLossMissed,
             stopLossMissedInstruction: row.stopLossMissedInstruction,
             note: row.note,
-            subscriptionId: [row.subscriptionId_0, row.subscriptionId_1].filter(id => id), // Filter out null/undefined values
+            subscriptionId: [row.subscriptionId_0, row.subscriptionId_1].filter((id) => id), // Filter out null/undefined values
             moduleId: row.moduleId,
-            symbol: row.symbol
+            symbol: row.symbol,
           };
 
           jsonData.push(tipFeedDoc);
@@ -60,9 +59,10 @@ const bulkCreate = async (parent, args, context) => {
           reject(error);
         });
     });
-    jsonData.shift()
+
+    jsonData.shift();
     for (let i = 0; i < jsonData.length; i++) {
-      jsonData[i].moduleId = null;
+      jsonData[i].moduleId = jsonData[i].moduleId ? jsonData[i].moduleId : null;
       pubsub.publish('TIP_ADD', {
         onTipAdd: { data: jsonData[i], statusCode: 200 },
       });
@@ -70,22 +70,29 @@ const bulkCreate = async (parent, args, context) => {
       if (jsonData[i].id) {
         await tipFeedModel.findOneAndUpdate(
           { _id: jsonData[i].id }, // Match using the provided id field
-          { $set: jsonData[i] },   // Update fields with the document
-          { upsert: true }         // Perform an upsert
+          { $set: jsonData[i] }, // Update fields with the document
+          { upsert: true } // Perform an upsert
         );
       }
     }
 
-    jsonData = jsonData.filter(obj => !obj.id); // Remove objects with id
-    jsonData = jsonData.map(obj => { delete obj.id; return obj })
+    jsonData = jsonData.filter((obj) => !obj.id); // Remove objects with id
+    jsonData = jsonData.map((obj) => {
+      delete obj.id;
+      return obj;
+    });
+    console.log('jsonData', jsonData);
     await tipFeedModel.insertMany(jsonData);
 
-    return { data: jsonData, message: 'Bulk creation successful', statusCode: 200 };
+    // Delete the uploaded file from the server
+    fs.unlinkSync(file.path);
 
+    return { data: jsonData, message: 'Bulk creation successful', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
 };
+
 
 
 
