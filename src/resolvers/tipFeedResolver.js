@@ -29,29 +29,29 @@ const bulkCreate = async (_, args) => {
         moduleId: row.moduleId || null,
       };
 
-      jsonData.push(tipFeedDoc);
-      pubsub.publish('TIP_ADD', {
-        onTipAdd: { data: tipFeedDoc, statusCode: 200 },
-      });
-
       if (id) {
-        await tipFeedModel.findOneAndUpdate(
+        let updated = await tipFeedModel.findOneAndUpdate(
           { _id: id },
           { $set: tipFeedDoc },
-          { upsert: true }
+          { new: true }
         );
+        pubsub.publish('TIP_ADD', {
+          onTipAdd: { data: updated, statusCode: 200 },
+        });
       } else {
         delete tipFeedDoc.id;
         newTips.push(tipFeedDoc);
       }
     }));
-
-    await Promise.all([
-      tipFeedModel.insertMany(newTips),
-      // Other batch database operations, if needed
-    ]);
-
-    return { data: jsonData, message: 'Bulk creation successful', statusCode: 200 };
+    if (newTips.length > 0) {
+      let newAdded = await tipFeedModel.insertMany(newTips);
+      newAdded.map(obj => {
+        pubsub.publish('TIP_ADD', {
+          onTipAdd: { data: obj, statusCode: 200 },
+        });
+      })
+    }
+    return { message: 'Bulk creation successful', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
