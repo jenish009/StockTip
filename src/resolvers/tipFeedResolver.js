@@ -14,9 +14,9 @@ const bulkCreate = async (_, args) => {
       const { id } = row;
 
       const targets = Array.from({ length: 5 }, (_, i) => ({
-        value: row[`targets_${i + 1}_value`] || "",
-        date: row[`targets_${i + 1}_date`] || "",
-        exit: row[`targets_${i + 1}_exit`] || "",
+        value: row[`targets_${i + 1}_value`].toString() || "",
+        date: row[`targets_${i + 1}_date`].toString() || "",
+        exit: row[`targets_${i + 1}_exit`].toString() || "",
       }));
 
       const tipFeedDoc = {
