@@ -23,6 +23,8 @@ const bulkCreate = async (_, args) => {
         id: id || null,
         ...row,
         targets,
+        isEntryMissed: (row.isEntryMissed.toUpperCase() === "TRUE") ? true : false,
+        isStopLossMissed: (row.isStopLossMissed.toUpperCase() === "TRUE") ? true : false,
         subscriptionId: [row.subscriptionId_0, row.subscriptionId_1, row.subscriptionId_2].filter(id => id),
         moduleId: row.moduleId || null,
       };
