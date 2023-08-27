@@ -57,6 +57,66 @@ const bulkCreate = async (_, args) => {
   }
 };
 
+const getTipForExel = async (_, { moduleId }) => {
+  try {
+    const filter = moduleId ? { moduleId } : {};
+    let data = await tipFeedModel.find(filter)
+    const output = data.map(item => {
+      const {
+        position,
+        stopLoss,
+        entry,
+        entry_date,
+        status,
+        quantity,
+        confirmation,
+        isEntryMissed,
+        entryMissedInstruction,
+        isStopLossMissed,
+        stopLossMissedInstruction,
+        note,
+        subscriptionId,
+        moduleId,
+        symbol,
+        targets,
+        _id
+      } = item;
+
+      const outputTargets = {};
+      targets.forEach((target, index) => {
+        const targetIndex = index + 1;
+        outputTargets[`targets_${targetIndex}_value`] = target.value;
+        outputTargets[`targets_${targetIndex}_date`] = target.date;
+        outputTargets[`targets_${targetIndex}_exit`] = target.exit;
+      });
+
+      return {
+        id: _id,
+        position,
+        stopLoss: parseInt(stopLoss),
+        entry: parseInt(entry),
+        entry_date,
+        status,
+        quantity: parseInt(quantity),
+        confirmation,
+        isEntryMissed: isEntryMissed === "false" ? false : true,
+        entryMissedInstruction,
+        isStopLossMissed: isStopLossMissed === "false" ? false : true,
+        stopLossMissedInstruction,
+        note,
+        subscriptionId_0: subscriptionId[0],
+        subscriptionId_1: subscriptionId[1] || "",
+        subscriptionId_2: subscriptionId[2] || "",
+        moduleId,
+        symbol,
+        ...outputTargets
+      };
+    });
+    return { data: output, statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
 
 const createTipFeed = async (_, args) => {
   try {
@@ -124,7 +184,6 @@ const createTipFeed = async (_, args) => {
     return { error: error.message, statusCode: 400 };
   }
 };
-
 
 const getTipFeed = async (_, { userId, moduleId }) => {
   try {
@@ -273,16 +332,16 @@ const deleteTipFeed = async (_, { id }) => {
     return { error: error.message, statusCode: 400 };
   }
 };
+
 const onTipAdd = {
   subscribe: () => pubsub.asyncIterator(['TIP_ADD']),
 };
 
-
-
 module.exports = {
   Query: {
     getTipFeed,
-    getTipModule
+    getTipModule,
+    getTipForExel
   },
   Mutation: {
     createTipFeed,

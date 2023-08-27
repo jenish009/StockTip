@@ -4,6 +4,7 @@ const tipFeedTypeDef = gql`
   type Query {
     getTipFeed(userId: ID!, moduleId : ID): response
     getTipModule: response
+    getTipForExel(moduleId : ID) : response
 
   }
 
