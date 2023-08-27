@@ -2,102 +2,58 @@ const { tipFeedModel, userModel, moduleModel } = require('../models/index');
 const { ObjectId } = require('mongoose').Types;
 const { PubSub } = require('graphql-subscriptions');
 const pubsub = new PubSub();
-const multer = require('multer');
-const fs = require('fs');
-const fastcsv = require('fast-csv');
 
-const upload = multer({ dest: 'uploads/' }); // Specify the destination folder for uploaded files
 
-const bulkCreate = async (parent, args, context) => {
+const bulkCreate = async (_, args) => {
   try {
-    const file = args.args.file; // Assuming 'file' is the name of the file field in the form-data
-    const fileData = fs.readFileSync(file.path, 'utf8');
+    const data = args.data;
+    const jsonData = [];
+    const newTips = [];
 
-    let jsonData = [];
+    await Promise.all(data.map(async (row) => {
+      const { id } = row;
 
-    await new Promise((resolve, reject) => {
-      fastcsv
-        .parseString(fileData, { headers: true })
-        .on('data', (row) => {
-          // Extract targets data from the columns and create the targets array
-          const targets = [];
-          for (let i = 1; i <= 5; i++) {
-            if (row[`targets_${i}_value`] && row[`targets_${i}_date`]) {
-              targets.push({
-                value: row[`targets_${i}_value`],
-                date: row[`targets_${i}_date`],
-              });
-            }
-          }
+      const targets = Array.from({ length: 5 }, (_, i) => ({
+        value: row[`targets_${i + 1}_value`] || "",
+        date: row[`targets_${i + 1}_date`] || "",
+        exit: row[`targets_${i + 1}_exit`] || "",
+      }));
 
-          // Create the document for tipFeedModel
-          const tipFeedDoc = {
-            position: row.position,
-            stopLoss: row.stopLoss,
-            entry: row.entry,
-            entry_date: row.entry_date,
-            status: row.status,
-            quantity: row.quantity,
-            confirmation: row.confirmation,
-            targets: targets,
-            isEntryMissed: row.isEntryMissed,
-            entryMissedInstruction: row.entryMissedInstruction,
-            isStopLossMissed: row.isStopLossMissed,
-            stopLossMissedInstruction: row.stopLossMissedInstruction,
-            note: row.note,
-            subscriptionId: [row.subscriptionId_0, row.subscriptionId_1].filter((id) => id), // Filter out null/undefined values
-            moduleId: row.moduleId,
-            symbol: row.symbol,
-          };
+      const tipFeedDoc = {
+        id: id || null,
+        ...row,
+        targets,
+        subscriptionId: [row.subscriptionId_0, row.subscriptionId_1, row.subscriptionId_2].filter(id => id),
+        moduleId: row.moduleId || null,
+      };
 
-          jsonData.push(tipFeedDoc);
-        })
-        .on('end', () => {
-          resolve();
-        })
-        .on('error', (error) => {
-          reject(error);
-        });
-    });
-
-    jsonData.shift();
-    for (let i = 0; i < jsonData.length; i++) {
-      jsonData[i].moduleId = jsonData[i].moduleId ? jsonData[i].moduleId : null;
+      jsonData.push(tipFeedDoc);
       pubsub.publish('TIP_ADD', {
-        onTipAdd: { data: jsonData[i], statusCode: 200 },
+        onTipAdd: { data: tipFeedDoc, statusCode: 200 },
       });
 
-      if (jsonData[i].id) {
+      if (id) {
         await tipFeedModel.findOneAndUpdate(
-          { _id: jsonData[i].id }, // Match using the provided id field
-          { $set: jsonData[i] }, // Update fields with the document
-          { upsert: true } // Perform an upsert
+          { _id: id },
+          { $set: tipFeedDoc },
+          { upsert: true }
         );
+      } else {
+        delete tipFeedDoc.id;
+        newTips.push(tipFeedDoc);
       }
-    }
+    }));
 
-    jsonData = jsonData.filter((obj) => !obj.id); // Remove objects with id
-    jsonData = jsonData.map((obj) => {
-      delete obj.id;
-      return obj;
-    });
-    console.log('jsonData', jsonData);
-    await tipFeedModel.insertMany(jsonData);
-
-    // Delete the uploaded file from the server
-    fs.unlinkSync(file.path);
+    await Promise.all([
+      tipFeedModel.insertMany(newTips),
+      // Other batch database operations, if needed
+    ]);
 
     return { data: jsonData, message: 'Bulk creation successful', statusCode: 200 };
   } catch (error) {
     return { error: error.message, statusCode: 400 };
   }
 };
-
-
-
-
-
-
 
 
 const createTipFeed = async (_, args) => {

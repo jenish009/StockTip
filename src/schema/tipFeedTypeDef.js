@@ -34,14 +34,11 @@ const tipFeedTypeDef = gql`
       id : ID
       ) : response
     deleteTipFeed(id : ID): response
-    bulkCreate(args: BulkCreateInput!): response
+    bulkCreate(data: JSONObject!): response
   }
   type Subscription {
     onTipAdd: response
   }
-  input BulkCreateInput {
-      filePath: String!
-}
 `;
 
 module.exports = { tipFeedTypeDef };
