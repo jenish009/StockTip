@@ -13,7 +13,7 @@ const bulkCreate = async (_, args) => {
     await Promise.all(data.map(async (row) => {
       const { id } = row;
 
-      const targets = Array.from({ length: 5 }, (_, i) => ({
+      const targets = Array.from({ length: 6 }, (_, i) => ({
         value: row[`targets_${i + 1}_value`].toString() || "",
         date: row[`targets_${i + 1}_date`].toString() || "",
         exit: row[`targets_${i + 1}_exit`].toString() || "",
