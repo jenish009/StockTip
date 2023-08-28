@@ -20,6 +20,9 @@ require('dotenv').config();
     );
     const server = new ApolloServer({
         schema,
+        persistedQueries: {
+            cache: 'bounded', // Set the cache to be bounded
+        },
         plugins: [
 
             {
