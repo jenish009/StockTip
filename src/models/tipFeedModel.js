@@ -54,6 +54,9 @@ const tipFeedSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isPreview: {
+      type: Boolean,
+    },
   },
   { timestamps: true, versionKey: false },
 );

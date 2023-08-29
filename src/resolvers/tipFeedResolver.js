@@ -27,6 +27,7 @@ const bulkCreate = async (_, args) => {
         isStopLossMissed: (row.isStopLossMissed.toUpperCase() === "TRUE") ? true : false,
         subscriptionId: [row.subscriptionId_0, row.subscriptionId_1, row.subscriptionId_2].filter(id => id),
         moduleId: row.moduleId || null,
+        isPreview: (row.isPreview.toUpperCase() === "TRUE") ? true : false,
       };
 
       if (id) {
@@ -137,7 +138,8 @@ const createTipFeed = async (_, args) => {
       stopLossMissedInstruction,
       note,
       subscriptionId,
-      moduleId
+      moduleId,
+      isPreview
     } = args;
 
     if (!symbol) {
@@ -160,7 +162,8 @@ const createTipFeed = async (_, args) => {
       stopLossMissedInstruction,
       note,
       subscriptionId,
-      moduleId
+      moduleId,
+      isPreview
     };
 
     let result;
@@ -274,6 +277,95 @@ const getTipFeed = async (_, { userId, moduleId }) => {
   }
 };
 
+const getPreviewTip = async (_, { moduleId }) => {
+  try {
+    // if (!userId) {
+    //   throw new Error('Please Enter UserId');
+    // }
+
+    const filter = { isPreview: true };
+
+    // const userData = await userModel.aggregate([
+    //   {
+    //     $match: {
+    //       _id: new ObjectId(userId),
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: 'roles',
+    //       localField: 'roleId',
+    //       foreignField: '_id',
+    //       as: 'role',
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: 'usersubscriptionplans',
+    //       let: { userId: '$_id' },
+    //       pipeline: [
+    //         {
+    //           $match: {
+    //             $expr: {
+    //               $and: [
+    //                 { $eq: ['$userId', '$$userId'] },
+    //                 { $lte: ['$startDate', new Date()] },
+    //                 { $gte: ['$expireDate', new Date()] },
+    //               ],
+    //             },
+    //           },
+    //         },
+    //       ],
+    //       as: 'usersubscriptionplans',
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: 'subscriptionplans',
+    //       localField: 'usersubscriptionplans.subscriptionPlanId',
+    //       foreignField: '_id',
+    //       as: 'subscriptionPlan',
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       role: { $arrayElemAt: ['$role.name', 0] },
+    //       subscriptionPlanId: {
+    //         $arrayElemAt: ['$usersubscriptionplans.subscriptionPlanId', 0],
+    //       },
+    //     },
+    //   },
+    // ]);
+    // if (userData.length == 0) {
+    //   throw new Error('User Not Found.');
+    // }
+    if (moduleId) {
+      filter.moduleId = moduleId;
+    }
+
+    // if (userData[0].role !== 'Admin') {
+    //   const subscriptionPlanIds = userData[0]?.subscriptionPlanId || [];
+    //   filter.$or = [
+    //     { subscriptionId: { $in: subscriptionPlanIds } },
+    //     { subscriptionId: null },
+    //     { subscriptionId: [] },
+    //   ];
+    // }
+
+    const tipFeedData = await tipFeedModel
+      .find(filter)
+      .sort({ _id: -1 });
+
+    if (!tipFeedData) {
+      throw new Error('No data available');
+    }
+
+    return { data: tipFeedData, statusCode: 200 };
+  } catch (error) {
+    return { error: error.message, statusCode: 400 };
+  }
+};
+
 const addUpdateTipModule = async (_, { id, name, imageLink, index }) => {
   try {
     let data;
@@ -341,7 +433,8 @@ module.exports = {
   Query: {
     getTipFeed,
     getTipModule,
-    getTipForExel
+    getTipForExel,
+    getPreviewTip
   },
   Mutation: {
     createTipFeed,

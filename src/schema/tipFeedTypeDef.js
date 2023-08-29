@@ -5,7 +5,7 @@ const tipFeedTypeDef = gql`
     getTipFeed(userId: ID!, moduleId : ID): response
     getTipModule: response
     getTipForExel(moduleId : ID) : response
-
+    getPreviewTip (moduleId : ID) : response
   }
 
   type Mutation {
@@ -27,6 +27,7 @@ const tipFeedTypeDef = gql`
       moduleId : ID
       subscriptionId: [String]
       id : ID
+      isPreview : Boolean
     ): response
     addUpdateTipModule(
       name : String
