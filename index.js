@@ -48,7 +48,7 @@ require('dotenv').config();
     });
 
     // Cron job to run every 15 minutes
-    cron.schedule('*/1 * * * *', async () => {
+    cron.schedule('*/14 * * * *', async () => {
         console.log('Cron job running...');
         // Place your cron job logic here
     });
