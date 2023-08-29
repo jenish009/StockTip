@@ -3,10 +3,11 @@ const { createServer } = require('http');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { execute, subscribe } = require('graphql');
-const { connectDatabase } = require('./utils/connection')
+const { connectDatabase } = require('./utils/connection');
 const { ApolloServer } = require('apollo-server-express');
 const typeDefs = require('./src/schema/index');
 const resolvers = require('./src/resolvers/index');
+const cron = require('node-cron'); // Import node-cron
 require('dotenv').config();
 
 (async function () {
@@ -24,7 +25,6 @@ require('dotenv').config();
             cache: 'bounded', // Set the cache to be bounded
         },
         plugins: [
-
             {
                 async serverWillStart() {
                     return {
@@ -40,12 +40,16 @@ require('dotenv').config();
     await server.start();
     server.applyMiddleware({ app });
 
-    await connectDatabase()
+    await connectDatabase();
 
     const PORT = process.env.PORT;
     httpServer.listen(PORT, () => {
         console.log(`Server is now running on http://localhost:${PORT}/graphql`);
     });
+
+    // Cron job to run every 15 minutes
+    cron.schedule('*/1 * * * *', async () => {
+        console.log('Cron job running...');
+        // Place your cron job logic here
+    });
 })();
-
-
