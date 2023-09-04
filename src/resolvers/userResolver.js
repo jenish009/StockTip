@@ -159,7 +159,7 @@ const updateProfile = async (_, { id, countryCode, phoneNo, password, name, emai
       { new: true }
     );
 
-    return { data: profileUpdated, statusCode: 200 };
+    return { data: profileUpdated, message : "Your profile has been successfully updated.",statusCode: 200 };
   } catch (error) {
     console.log("error", error);
     return { error: error.message, statusCode: 400 };
