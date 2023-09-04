@@ -95,6 +95,9 @@ const updateProfile = async (_, { id, countryCode, phoneNo, password, name, emai
     if (!existingUser) {
       throw new Error("User not found.");
     }
+    if (password && password.length < 8) {
+      throw new Error("Passwords must be at least 8 characters long.");
+    }
 
     if (phoneNo) {
       if (!/^\d{10}$/.test(phoneNo)) {
@@ -108,7 +111,7 @@ const updateProfile = async (_, { id, countryCode, phoneNo, password, name, emai
       }
     }
 
-    if (password && password.length >= 8) {
+    if (password) {
       // const hashedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
       updateFilter.password = password;
     }
