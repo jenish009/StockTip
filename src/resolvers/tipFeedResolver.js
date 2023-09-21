@@ -253,7 +253,7 @@ const getTipFeed = async (_, { userId, moduleId }) => {
     if (moduleId) {
       filter.moduleId = moduleId;
     }
-
+console.log("userData>>",userData)
     if (userData[0].role !== 'Admin') {
       const subscriptionPlanIds = userData[0]?.subscriptionPlanId || [];
       filter.$or = [
